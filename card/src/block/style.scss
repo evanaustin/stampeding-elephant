@@ -2,13 +2,58 @@
  * #.# Styles
  *
  * CSS for both Frontend+Backend.
+ * Note that these styles are loaded *before* editor styles, so that
+ * editor-specific styles using the same selectors will take precedence.
  */
 
-.wp-block-cgb-block-card  {
-  background: $red;
-  border: 0.2rem solid $black;
-  color: $black;
-  margin: 0 auto;
-  max-width: 740px;
-  padding: 2rem;
+
+/* CARD GENERIC STYLES*/
+
+.wp-block-lu-block-card {
+  border: 1px solid #F1F1F1;
+  border-radius: 4px;
+  background-color: #F6F9FC;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+  margin: 0;
+  height: auto;
+  white-space: normal;
+}
+
+.wp-block-lu-block-card .card_top, .wp-block-lu-block-card .card_bottom {
+  text-align: center;
+}
+
+.wp-block-lu-block-card .card_top {
+  padding: 20px 10px 25px;
+  background-color: #fff;
+  border-radius: 4px
+}
+
+.wp-block-lu-block-card .card_bottom {
+  padding: 20px 15px;
+  border-radius: 0 0 5px 5px;
+}
+
+.wp-block-lu-block-card .card_top h3 {
+  color: #2773CB;
+  font-family: "PT Serif";
+  font-size: 56px;
+  line-height: .8em;
+  margin-bottom: 12px;
+}
+
+.wp-block-lu-block-card .card_top sup {
+  font-size: 24px;
+}
+
+
+/* UNIVERSAL BLOCK STYLES */
+/* this should go somewhere universal for all blocks */
+
+.wp-block-columns {
+  display: flex;
+  
+  .wp-block-column {
+    flex-grow: 1;
+  }
 }
