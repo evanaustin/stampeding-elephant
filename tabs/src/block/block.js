@@ -30,29 +30,29 @@ const { TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleCon
  * @return {?WPBlock}          The block, if it has been successfully
  *                             registered; otherwise `undefined`.
  */
-registerBlockType( 'lu/block-tabs-parent', {
+registerBlockType('lu/block-tabs-parent', {
 	// Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-	title: __( 'Tabs Parent' ), // Block title.
+	title: __('Tabs'), // Block title.
 	icon: 'menu', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
 	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
 	keywords: [
-		__( 'Tabs' ),
-		__( 'Custom blocks' ),
-		__( 'Gutenberg' ),
+		__('Tabs'),
+		__('Custom blocks'),
+		__('Gutenberg'),
 	],
 	attributes: {
-        noOfTabs: {
-            type: 'number',
-            default: 0,
-        },
-        tabID: {
-            type: 'string',
-        },
-        styled: {
-            type: 'boolean',
-            default: false,
-        },
-    },
+		noOfTabs: {
+			type: 'number',
+			default: 0,
+		},
+		blockId: {
+			type: 'string',
+		},
+		style: {
+			type: 'string',
+			default: 'regular',
+		},
+	},
 
 	/**
 	 * The edit function describes the structure of your block in the context of the editor.
@@ -65,22 +65,84 @@ registerBlockType( 'lu/block-tabs-parent', {
 	 * @param {Object} props Props.
 	 * @returns {Mixed} JSX Component.
 	 */
-	edit: ( props ) => {
+	edit: (props) => {
+		const {
+			attributes: {
+				noOfTabs,
+				style
+			},
+			className,
+			setAttributes,
+			clientId,
+		} = props;
+
+		setAttributes({ blockId: clientId });
+
+		const ALLOWEDTITLEBLOCKS = ['lu/block-tab-title'];
+		const ALLOWEDCONTENTBLOCKS = ['lu/block-tab-content'];
+
+		const ALLOWEDBLOCKS = ['core/paragraph'];
+        const BLOCKS_TEMPLATE = [
+            ['core/paragraph', { placeholder: 'Lorem ipsum dolor sit amet' }],
+        ];
+
+		const getTabTitleBlocks = memoize(tabTitles => {
+			return times(tabTitles, n => ["lu/block-tab-title", {
+				id: n + 1
+			}]);
+		});
+		
+		const getTabContentBlocks = memoize(tabContents => {
+			return times(tabContents, n => ["lu/block-tab-content", {
+				id: n + 1
+			}]);
+		});
+
 		return (
-			<div className={ props.className }>
-				<p>— Hello from the backend.</p>
-				<p>
-					CGB TABS BLOCK: <code>tabs</code> is a new Gutenberg block
-				</p>
-				<p>
-					It was created via{ ' ' }
-					<code>
-						<a href="https://github.com/ahmadawais/create-guten-block">
-							create-guten-block
-						</a>
-					</code>.
-				</p>
-			</div>
+			<fragment>
+				<div className={{ className }}>
+					<div className={'tabsParentWrapper tabs_wrapper'}>
+						<p>[ Tabs ]</p>
+
+						<div className="tabs">
+							<InnerBlocks
+								template={getTabTitleBlocks(noOfTabs)}
+								templateLock="all"
+								allowedBlocks={ALLOWEDTITLEBLOCKS}
+							/>
+						</div>
+
+						<div className="tabs_content">
+							<InnerBlocks
+								template={BLOCKS_TEMPLATE}
+								templateLock="all"
+								allowedBlocks={ALLOWEDBLOCKS}
+							/>
+							{/* <InnerBlocks
+								template={getTabContentBlocks(noOfTabs)}
+								templateLock="all"
+								allowedBlocks={ALLOWEDCONTENTBLOCKS}
+							/> */}
+						</div>
+
+						<span className="dashicons dashicons-plus" onClick={() => setAttributes({ noOfTabs: noOfTabs + 1 })}></span>
+						<span className="dashicons dashicons-minus" onClick={() => setAttributes({ noOfTabs: noOfTabs - 1 })}></span>
+					</div>
+
+					<InspectorControls>
+						<panelBody title={__('Tabs Style Setting')} initialOpen={false}>
+							<panelRow>
+								<label><b>Style Setting</b></label>
+								<ToggleControl
+									label={__('Style Tabs')}
+									checked={!!style}
+									onChange={() => setAttributes({ style: !style })}
+								/>
+							</panelRow>
+						</panelBody>
+					</InspectorControls>
+				</div>
+			</fragment>
 		);
 	},
 
@@ -95,22 +157,146 @@ registerBlockType( 'lu/block-tabs-parent', {
 	 * @param {Object} props Props.
 	 * @returns {Mixed} JSX Frontend HTML.
 	 */
-	save: ( props ) => {
+	save: (props) => {
+		const {
+			attributes: {
+				noOfTabs,
+				style
+			},
+			className,
+			setAttributes,
+			clientId
+		} = props;
+
 		return (
-			<div className={ props.className }>
-				<p>— Hello from the frontend.</p>
-				<p>
-					CGB BLOCK: <code>tabs</code> is a new Gutenberg block.
-				</p>
-				<p>
-					It was created via{ ' ' }
-					<code>
-						<a href="https://github.com/ahmadawais/create-guten-block">
-							create-guten-block
-						</a>
-					</code>.
-				</p>
+			<div className="tab_wrapper">
+				<div className="tabs">
+					<InnerBlocks.Content />
+				</div>
+
+				<div className="tabs_content">
+					<InnerBlocks.Content />
+				</div>
 			</div>
 		);
 	},
-} );
+});
+
+
+/* Tab Title Block */
+registerBlockType('lu/block-tab-title', {
+	title: __('Tab Title'),
+	category: 'common',
+	parent: ['lu/block-tabs-parent'],
+	attributes: {
+		style: {
+			type: 'string',
+			default: 'regular',
+		},
+		title: {
+			type: 'string',
+		},
+	},
+	edit: (props) => {
+		const { attributes, setAttributes, className, clientId } = props;
+		const parentBlocks = wp.data.select('core/block-editor').getBlockParents(clientId);
+		const parentAttributes = wp.data.select('core/block-editor').getBlocksByClientId(parentBlocks)[0].attributes;
+		{ setAttributes({ style: parentAttributes.style }) }
+
+		const {
+			style,
+			title,
+		} = attributes;
+
+		return (
+			<div className={{ className }}>
+				<div className='tab'>
+					<RichText
+						tagName="div"
+						value={title}
+						onChange={(value) => setAttributes({ title: value })}
+						placeholder={__('Tab title')}
+						className="tab_title"
+					/>
+				</div>
+			</div>
+		);
+	},
+	save: (props) => {
+		const { attributes, className } = props;
+
+		const {
+			style,
+			title,
+		} = attributes;
+
+		return (
+			<div className="tab">
+				<RichText.Content
+					tagName="div"
+					value={title}
+					className="tab_title"
+				/>
+			</div>
+		);
+	},
+});
+
+/* Tab Content Block */
+registerBlockType('lu/block-tab-content', {
+	title: __('Tab Content'),
+	category: 'common',
+	parent: ['lu/block-accordion-parent'],
+	attributes: {
+		style: {
+			type: 'string',
+			default: 'regular',
+		},
+	},
+	edit: (props) => {
+		const { attributes, setAttributes, className, clientId } = props;
+		const parentBlocks = wp.data.select('core/block-editor').getBlockParents(clientId);
+		const parentAttributes = wp.data.select('core/block-editor').getBlocksByClientId(parentBlocks)[0].attributes;
+		{ setAttributes({ style: parentAttributes.style }) }
+
+		const {
+			style,
+		} = attributes;
+
+		const ALLOWEDBLOCKS = ['core/paragraph'];
+		const BLOCKS_TEMPLATE = [
+			['core/paragraph', { placeholder: 'Lorem ipsum dolor sit amet' }],
+		];
+
+		// const subtitleDisplay = styled ? 'block' : 'none';
+
+		return (
+			<div className={{ className }}>
+				<div className='tabs_content'>
+					<div className='tabContent'>
+						<InnerBlocks
+							template={BLOCKS_TEMPLATE}
+							templateLock={false}
+							allowedBlocks={ALLOWEDBLOCKS}
+						></InnerBlocks>
+					</div>
+				</div>
+			</div>
+		);
+	},
+	save: (props) => {
+		const { attributes, className } = props;
+
+		const {
+			style,
+		} = attributes;
+
+		return (
+			<div className={'tabs_content'}>
+				<div className='tabContent'>
+					<InnerBlocks.Content />
+				</div>
+			</div>
+		);
+	},
+});
