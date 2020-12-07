@@ -33,7 +33,7 @@ const { TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleCon
  */
 registerBlockType('lu/block-accordion-parent', {
     // Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-    title: __('Accordion Parent'), // Block title.
+    title: __('Accordion'), // Block title.
     icon: 'menu', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
     category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
     keywords: [
@@ -46,7 +46,7 @@ registerBlockType('lu/block-accordion-parent', {
             type: 'number',
             default: 0
         },
-        blockID: {
+        blockId: {
             type: 'string',
         },
         styled: {
@@ -68,16 +68,13 @@ registerBlockType('lu/block-accordion-parent', {
      */
     edit: (props) => {
         const {
-            attributes: {
-                noOfChildren,
-                styled
-            },
+            attributes: { noOfChildren, styled, },
             className,
             setAttributes,
             clientId,
         } = props;
 
-        setAttributes({ blockID: clientId });
+        setAttributes({ blockId: clientId });
 
         const ALLOWEDBLOCKS = ['lu/block-accordion-child'];
 
@@ -152,7 +149,7 @@ registerBlockType('lu/block-accordion-parent', {
     },
 });
 
-/* Accordion Block */
+/* Accordion Child Block */
 registerBlockType('lu/block-accordion-child', {
     title: __('Accordion Child'),
     category: 'common',
@@ -191,7 +188,6 @@ registerBlockType('lu/block-accordion-child', {
         const BLOCKS_TEMPLATE = [
             ['core/paragraph', { placeholder: 'Lorem ipsum dolor sit amet' }],
         ];
-
 
         const subtitleDisplay = styled ? 'block' : 'none';
 

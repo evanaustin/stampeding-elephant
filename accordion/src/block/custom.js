@@ -6,7 +6,7 @@
     });
 })(jQuery); */
 
-"use strict";
+/* "use strict";
 
 var $ = jQuery;
 $(document).ready(function () {
@@ -20,4 +20,4 @@ $(document).ready(function () {
             $(this).parent('.accordionWrapper').removeClass('tabOpen').addClass('tabClose');
         }
     });
-});
+}); */
