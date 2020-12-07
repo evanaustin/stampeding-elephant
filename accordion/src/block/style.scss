@@ -4,11 +4,173 @@
  * CSS for both Frontend+Backend.
  */
 
-.wp-block-cgb-block-accordion  {
+.wp-block-lu-block-accordion {
   background: $red;
   border: 0.2rem solid $black;
   color: $black;
   margin: 0 auto;
   max-width: 740px;
   padding: 2rem;
+}
+
+
+/* Regular Accordion */
+
+.accordion {
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.accordion_item {
+  width: 100%;
+  margin: 0 0 10px;
+  overflow: hidden;
+  background: transparent;
+  position: relative;
+  animation-delay: 0.5s;
+  border: 1px solid #e0e0e0;
+
+  .accordion_title {
+    width: 100%;
+    text-align: left;
+    position: relative;
+    font-weight: bold;
+    z-index: 1;
+    padding: 15px;
+    cursor: pointer;
+    float: left;
+
+    * {
+      margin: 0;
+      padding: 0;
+      line-height: 1.2em;
+    }
+
+    &:after {
+      content: "";
+      position: absolute;
+      right: 20px;
+      width: 7px;
+      height: 7px;
+      top: calc(50% - 3px);
+      transform: translate(0, -50%) rotate(45deg);
+      font-size: 1.7em;
+      border-right: 2px solid #9b9b9b;
+      border-bottom: 2px solid #9b9b9b;
+      transition: 0.3s all;
+    }
+  }
+}
+
+.accordion.grey_bg {
+  .accordion_item {
+    border: none;
+  }
+
+  .accordion_title {
+    background: #f1f1f1;
+    border: 2px solid #c6c7c9;
+  }
+}
+
+.accordion_title {
+  h3 {
+    font-size: 1.5em;
+  }
+}
+
+.accordion_item.active {
+  .accordion_title {
+    &:after {
+      margin-top: 0px;
+      transform: translate(0, -50%) rotate(-135deg);
+      // left: -15px;
+    }
+  }
+  .accordion_content {
+    opacity: 1;
+  }
+}
+
+.accordion_content {
+  padding: 0 10px 24px;
+  position: relative;
+  overflow: hidden;
+  clear: both;
+  margin-top: 0;
+  display: none;
+}
+
+.grey_bg {
+  .accordion_content {
+    padding-top: 10px;
+  }
+}
+
+.accordion_item.bg_darkgray {
+  background-color: #333;
+
+  .accordion_title {
+    &:after {
+      border-color: #fff;
+    }
+  }
+}
+
+.accordion_item.bg_gray {
+  background-color: #f5f5f5;
+}
+
+.accordion_item.bg_blue {
+  background-color: #eef3f9;
+}
+
+.accordion_item.bg_darkblue {
+  background-color: #161f31;
+  .accordion_title {
+    &:after {
+      border-color: #fff;
+    }
+  }
+}
+
+
+/* Styled Accordion */
+
+.accordion.styled-accordion {
+  .accordion_item {
+    border-left: none;
+    border-right: none;
+    border-top: none;
+
+    .accordion_title {
+      padding-left: 0;
+      padding-right: 0;
+      background-color: white;
+
+      &:after {
+        width: 12px;
+        height: 12px;
+        top: 25px;
+      }
+
+      p {
+        font-weight: normal;
+        line-height: 1.635em;
+        color: #333;
+      }
+    }
+
+    .accordion_content {
+      padding-left: 30px;
+      padding-right: 30px;
+      padding-top: 30px;
+    }
+  }
+
+  h3 {
+    color: #395786;
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
 }

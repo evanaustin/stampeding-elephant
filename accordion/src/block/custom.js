@@ -10,7 +10,7 @@
 
 var $ = jQuery;
 $(document).ready(function () {
-    $(document).on('click', '.accordionWrapper .accordionHeader', function (e) {
+    $(document).on('click', '.accordionWrapper .accordionHeader h3', function (e) {
         e.stopImmediatePropagation();
         $(this).next().slideToggle(400);
 

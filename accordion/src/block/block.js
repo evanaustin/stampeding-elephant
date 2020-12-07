@@ -33,22 +33,26 @@ const { TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleCon
  */
 registerBlockType('lu/block-accordion-parent', {
     // Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-    title: __('Accordion'), // Block title.
+    title: __('Accordion Parent'), // Block title.
     icon: 'menu', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
     category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
     keywords: [
         __('Accordion'),
         __('Custom blocks'),
-        __('Gutenburg'),
+        __('Gutenberg'),
     ],
     attributes: {
-        noOfAccordion: {
+        noOfChildren: {
             type: 'number',
-            default: 1
+            default: 0
         },
-        blockId: {
+        blockID: {
             type: 'string',
-        }
+        },
+        styled: {
+            type: 'boolean',
+            default: false,
+        },
     },
 
     /**
@@ -63,32 +67,54 @@ registerBlockType('lu/block-accordion-parent', {
      * @returns {Mixed} JSX Component.
      */
     edit: (props) => {
-        // Creates a <p class='wp-block-lu-block-accordion-parent'></p>.
         const {
-            attributes: { noOfAccordion, },
+            attributes: {
+                noOfChildren,
+                styled
+            },
             className,
             setAttributes,
             clientId,
         } = props;
 
-        setAttributes({ blockId: clientId });
-        const ALLOWBLOCKS = ['lu/block-accordion-child'];
+        setAttributes({ blockID: clientId });
+
+        const ALLOWEDBLOCKS = ['lu/block-accordion-child'];
+
         const getChildAccordionBlock = memoize(accordion => {
-            return times(accordion, n => ["lu/block-accordion-child", { id: n + 1 }]);
+            return times(accordion, n => ["lu/block-accordion-child", {
+                id: n + 1
+            }]);
         });
+
+        const styledAccordion = styled ? 'styled-accordion' : '';
 
         return (
             <fragment>
                 <div className={{ className }}>
-                    <div className="accordionParentWrapper">
+                    <div className={'accordionParentWrapper accordion' + ' ' + styledAccordion}>
+                        <p>[ Accordion ]</p>
                         <InnerBlocks
-                            template={getChildAccordionBlock(noOfAccordion)}
+                            template={getChildAccordionBlock(noOfChildren)}
                             templateLock="all"
-                            allowedBlocks={ALLOWBLOCKS}
+                            allowedBlocks={ALLOWEDBLOCKS}
                         />
-                        {/* <span className="dashicons dashicons-plus" onClick={() => setAttributes({ noOfAccordion: noOfAccordion + 1 })}></span> */}
-                        {/* <span className="dashicons dashicons-minus" onClick={() => setAttributes({ noOfAccordion: noOfAccordion - 1 })}></span> */}
+                        <span className="dashicons dashicons-plus" onClick={() => setAttributes({ noOfChildren: noOfChildren + 1 })}></span>
+                        <span className="dashicons dashicons-minus" onClick={() => setAttributes({ noOfChildren: noOfChildren - 1 })}></span>
                     </div>
+
+                    <InspectorControls>
+                        <panelBody title={__('Accordion Style Setting')} initialOpen={false}>
+                            <panelRow>
+                                <label><b>Styled Setting</b></label>
+                                <ToggleControl
+                                    label={__('Styled Accordion')}
+                                    checked={!!styled}
+                                    onChange={() => setAttributes({ styled: !styled })}
+                                />
+                            </panelRow>
+                        </panelBody>
+                    </InspectorControls>
                 </div>
             </fragment>
         );
@@ -107,254 +133,109 @@ registerBlockType('lu/block-accordion-parent', {
      */
     save: (props) => {
         const {
-            attributes: { noOfAccordion, },
+            attributes: {
+                noOfChildren,
+                styled,
+            },
             className,
             setAttributes,
             clientId
         } = props;
 
+        const styledAccordion = styled ? 'styled-accordion' : '';
+
         return (
-            <InnerBlocks.Content />
+            <div className={'accordion' + ' ' + styledAccordion}>
+                <InnerBlocks.Content />
+            </div>
         );
     },
 });
 
 /* Accordion Block */
 registerBlockType('lu/block-accordion-child', {
-    title: __('Accordion Pane'),
+    title: __('Accordion Child'),
     category: 'common',
     parent: ['lu/block-accordion-parent'],
     attributes: {
         title: {
             type: 'string',
-            selector: 'h4',
+        },
+        subtitle: {
+            type: 'string',
+            default: ''
         },
         open: {
             type: 'boolean',
             default: false,
         },
-        alignment: {
-            type: 'string',
-            default: 'unset',
+        styled: {
+            type: 'boolean',
+            default: false,
         },
-        headerTextFontSize: {
-            type: 'string',
-            default: '22px'
-        },
-        headerTextColor: {
-            type: 'string',
-            default: '#fff',
-        },
-        titleBackgroundColor: {
-            type: 'string',
-            default: '#26466d',
-        },
-        titlePaddingTop: {
-            type: 'number',
-            default: 10
-        },
-        titlePaddingRight: {
-            type: 'number',
-            default: 40
-        },
-        titlePaddingBottom: {
-            type: 'number',
-            default: 10
-        },
-        titlePaddingLeft: {
-            type: 'number',
-            default: 10
-        },
-        bodyTextColor: {
-            type: 'string',
-            default: '#26466d'
-        },
-        bodyBgColor: {
-            type: 'string',
-            default: '#f7f7f7'
-        },
-        borderWidth: {
-            type: 'number',
-            default: 0
-        },
-        borderType: {
-            type: 'string',
-        },
-        borderColor: {
-            type: 'string',
-            default: '#000'
-        },
-        borderRadius: {
-            type: 'number',
-            default: 3
-        }
     },
     edit: (props) => {
-        const { attributes, setAttributes, className } = props;
+        const { attributes, setAttributes, className, clientId } = props;
+        const parentBlocks = wp.data.select('core/block-editor').getBlockParents(clientId);
+        const parentAttributes = wp.data.select('core/block-editor').getBlocksByClientId(parentBlocks)[0].attributes;
+        { setAttributes({ styled: parentAttributes.styled }) }
+
         const {
             title,
+            subtitle,
             open,
-            alignment,
-            headerTextFontSize,
-            headerTextColor,
-            titleBackgroundColor,
-            titlePaddingTop,
-            titlePaddingRight,
-            titlePaddingBottom,
-            titlePaddingLeft,
-            bodyTextColor,
-            bodyBgColor,
-            borderWidth,
-            borderType,
-            borderColor,
-            borderRadius
+            styled,
         } = attributes;
+
+        const ALLOWEDBLOCKS = ['core/paragraph'];
+        const BLOCKS_TEMPLATE = [
+            ['core/paragraph', { placeholder: 'Lorem ipsum dolor sit amet' }],
+        ];
+
+
+        const subtitleDisplay = styled ? 'block' : 'none';
+
         return (
             <div className={{ className }}>
-                <div className='accordionWrapper' style={{ borderWidth: borderWidth + 'px', borderStyle: borderType, borderColor: borderColor, borderRadius: borderRadius + 'px' }}>
-                    <div className='accordionHeader'>
+                <div className='accordionWrapper accordion_item'>
+                    <div className='accordionHeader accordion_title'>
                         <RichText
-                            tagName="h4"
+                            tagName={styled ? 'h3' : 'p'}
                             value={title}
-                            style={{ fontSize: headerTextFontSize, textAlign: alignment, color: headerTextColor, backgroundColor: titleBackgroundColor, paddingTop: titlePaddingTop + 'px', paddingRight: titlePaddingRight + 'px', paddingBottom: titlePaddingBottom + 'px', paddingLeft: titlePaddingLeft + 'px' }}
                             onChange={(value) => setAttributes({ title: value })}
                             placeholder={__('Accordion Header')}
                         />
+
+                        <RichText
+                            tagName="p"
+                            value={subtitle}
+                            onChange={(value) => setAttributes({ subtitle: value })}
+                            placeholder={__('Accordion Subtitle')}
+                            style={{ display: subtitleDisplay }}
+                        />
                     </div>
-                    <div className='accordionBody' style={{ backgroundColor: bodyBgColor, color: bodyTextColor }}>
-                        <InnerBlocks templateLock={false}></InnerBlocks>
+
+
+                    <div className='accordionBody accordionContent'>
+                        <InnerBlocks
+                            template={BLOCKS_TEMPLATE}
+                            templateLock={false}
+                            allowedBlocks={ALLOWEDBLOCKS}
+                        ></InnerBlocks>
+
                     </div>
                 </div>
+
                 <InspectorControls>
                     <panelBody title={__('Accordion Title Setting')} initialOpen={false}>
                         <panelRow>
                             <label><b>Title Setting</b></label>
                             <ToggleControl
-                                label={__('Accordion Open')}
+                                label={__('Open By Default')}
                                 checked={!!open}
                                 onChange={() => setAttributes({ open: !open })}
                             />
                         </panelRow>
-                        <panelRow>
-                            <label><b>Title Alignment</b></label>
-                            <AlignmentToolbar
-                                value={alignment}
-                                onChange={(value) => setAttributes({ alignment: value })}
-                            />
-                        </panelRow>
-                        <panelRow>
-                            <TextControl
-                                type="string"
-                                label="Header Font Size"
-                                value={headerTextFontSize}
-                                onChange={value => setAttributes({ headerTextFontSize: value })}
-                            />
-                        </panelRow>
-                    </panelBody>
-                    <panelBody>
-                        <panelRow>
-                            <PanelColorSettings
-                                title={__('Color Settings')}
-                                initialOpen={false}
-                                colorSettings={[
-                                    {
-                                        label: __('Background Color'),
-                                        value: titleBackgroundColor,
-                                        onChange: (value) => setAttributes({ titleBackgroundColor: value ? value : '#26466d' }),
-                                    },
-                                    {
-                                        label: __('Text Color'),
-                                        value: headerTextColor,
-                                        onChange: (value) => setAttributes({ headerTextColor: value ? value : '#fff' }),
-                                    },
-                                ]}
-                            />
-                        </panelRow>
-                    </panelBody>
-                    <panelBody>
-                        <panelRow className='titlePadding'>
-                            <label><b>Header Padding Setting</b></label>
-                            <TextControl
-                                type="number"
-                                label="Padding Top"
-                                value={titlePaddingTop}
-                                onChange={value => setAttributes({ titlePaddingTop: value })}
-                            />
-                            <TextControl
-                                type="number"
-                                label="Padding Right"
-                                value={titlePaddingRight}
-                                onChange={value => setAttributes({ titlePaddingRight: value })}
-                            />
-                            <TextControl
-                                type="number"
-                                label="Padding Bottom"
-                                value={titlePaddingBottom}
-                                onChange={value => setAttributes({ titlePaddingBottom: value })}
-                            />
-                            <TextControl
-                                type="number"
-                                label="Padding Left"
-                                value={titlePaddingLeft}
-                                onChange={value => setAttributes({ titlePaddingLeft: value })}
-                            />
-                        </panelRow>
-                    </panelBody>
-                    <panelBody title={__('Accordion Body Setting')} initialOpen={false}>
-                        <label><b>Accordion Body Style</b></label>
-                        <PanelColorSettings
-                            title={__('Color Settings')}
-                            initialOpen={false}
-                            colorSettings={[
-                                {
-                                    label: __('Background Color'),
-                                    value: bodyBgColor,
-                                    onChange: (value) => setAttributes({ bodyBgColor: value ? value : '#f7f7f7' }),
-                                },
-                                {
-                                    label: __('Text Color'),
-                                    value: bodyTextColor,
-                                    onChange: (value) => setAttributes({ bodyTextColor: value ? value : '#26466d' }),
-                                },
-                            ]}
-                        />
-                        <RangeControl
-                            label={__('Border Width')}
-                            value={borderWidth}
-                            min="1"
-                            max="100"
-                            step="1"
-                            onChange={(value) => setAttributes({ borderWidth: value })}
-                        />
-                        <SelectControl
-                            label={__('Border Type')}
-                            value={borderType}
-                            options={[
-                                { label: __('Border Type'), value: '' },
-                                { label: __('Solid'), value: 'solid' },
-                                { label: __('Dashed'), value: 'dashed' },
-                                { label: __('Dotted'), value: 'dotted' },
-                            ]}
-                            onChange={(value) => setAttributes({ borderType: value })}
-                        />
-                        <PanelColorSettings
-                            title={__('Border Color')}
-                            initialOpen={false}
-                            colorSettings={[
-                                {
-                                    label: __('Border Color'),
-                                    value: borderColor,
-                                    onChange: (value) => setAttributes({ borderColor: value }),
-                                },
-                            ]}
-                        />
-                        <TextControl
-                            type="numer"
-                            label="Border Radius"
-                            min="3"
-                            value={borderRadius}
-                            onChange={value => setAttributes({ borderRadius: value })}
-                        />
                     </panelBody>
                 </InspectorControls>
             </div>
@@ -362,100 +243,42 @@ registerBlockType('lu/block-accordion-child', {
     },
     save: (props) => {
         const { attributes, className } = props;
+
         const {
-            title,
             open,
-            alignment,
-            headerTextFontSize,
-            headerTextColor,
-            titleBackgroundColor,
-            titlePaddingTop,
-            titlePaddingRight,
-            titlePaddingBottom,
-            titlePaddingLeft,
-            bodyTextColor,
-            bodyBgColor,
-            borderWidth,
-            borderType,
-            borderColor,
-            borderRadius
+            styled,
+            title,
+            subtitle,
         } = attributes;
+
+
         const tabOpen = open ? 'tabOpen' : 'tabClose';
+        const subtitleDisplay = styled ? 'block' : 'none';
         const bodyDisplay = open ? 'block' : 'none';
+
         return (
-            <div className={'accordionWrapper' + ' ' + tabOpen} style={{ borderWidth: borderWidth + 'px', borderStyle: borderType, borderColor: borderColor, borderRadius: borderRadius + 'px' }}>
-                <div className='accordionHeader'>
+            <div className={'accordionWrapper accordion_item' + ' ' + tabOpen}>
+                <div className='accordion_title'>
                     <RichText.Content
-                        tagName="h4"
-                        value={attributes.title}
-                        style={{ fontSize: headerTextFontSize, textAlign: alignment, color: headerTextColor, backgroundColor: titleBackgroundColor, paddingTop: titlePaddingTop + 'px', paddingRight: titlePaddingRight + 'px', paddingBottom: titlePaddingBottom + 'px', paddingLeft: titlePaddingLeft + 'px' }}
+                        tagName={styled ? 'h3' : 'p'}
+                        value={title}
+                        className="accordionHeader"
+                    />
+
+                    <RichText.Content
+                        tagName="p"
+                        value={subtitle}
+                        style={{ display: subtitleDisplay }}
                     />
                 </div>
-                <div className='accordionBody' style={{ backgroundColor: bodyBgColor, color: bodyTextColor, display: bodyDisplay }}>
+
+
+                <div className='accordionBody accordion_content'
+                    style={{ display: bodyDisplay }}
+                >
                     <InnerBlocks.Content />
                 </div>
             </div>
         );
     },
-    /* deprecated: [
-        {
-            attributes: {
-                titlePaddingTop: {
-                    type: 'number',
-                    default: 10
-                },
-                titlePaddingRight: {
-                    type: 'number',
-                    default: 40
-                },
-                titlePaddingBottom: {
-                    type: 'number',
-                    default: 10
-                },
-                titlePaddingLeft: {
-                    type: 'number',
-                    default: 10
-                }
-            },
-
-            migrate: function (attributes) {
-                return {
-                    content: attributes.text
-                };
-            },
-
-            save: (props) => {
-                const { attributes, className } = props;
-                const {
-                    titlePaddingTop,
-                    titlePaddingRight,
-                    titlePaddingBottom,
-                    titlePaddingLeft,
-                    borderWidth,
-                    borderType,
-                    borderColor,
-                    borderRadius,
-                    headerTextFontSize,
-                    alignment,
-                    headerTextColor,
-                    titleBackgroundColor,
-                    title,
-                    bodyBgColor,
-                    bodyTextColor
-                } = attributes;
-                const tabOpen = open ? 'tabOpen' : 'tabClose';
-                const bodyDisplay = open ? 'block' : 'none';
-                return (
-                    <div className={'accordionWrapper' + ' ' + tabOpen} style={{ borderWidth: borderWidth + 'px', borderStyle: borderType, borderColor: borderColor, borderRadius: borderRadius + 'px' }}>
-                        <div className='accordionHeader'>
-                            <h4 style={{ fontSize: headerTextFontSize, textAlign: alignment, color: headerTextColor, backgroundColor: titleBackgroundColor, paddingTop: titlePaddingTop + 'px', paddingRight: titlePaddingRight + 'px', paddingBottom: titlePaddingBottom + 'px', paddingLeft: titlePaddingLeft + 'px' }}>{title}</h4>
-                        </div>
-                        <div className='accordionBody' style={{ backgroundColor: bodyBgColor, color: bodyTextColor, display: bodyDisplay }}>
-                            <InnerBlocks.Content />
-                        </div>
-                    </div>
-                );
-            },
-        }
-    ] */
 });
