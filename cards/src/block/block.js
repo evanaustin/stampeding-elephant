@@ -89,8 +89,8 @@ registerBlockType('lu/block-cards-parent', {
 							templateLock="all"
 							allowedBlocks={ALLOWEDBLOCKS}
 						/>
-						<span className="dashicons dashicons-plus" onClick={() => setAttributes({ noOfChildren: noOfChildren + 1 })}></span>
-						<span className="dashicons dashicons-minus" onClick={() => setAttributes({ noOfChildren: noOfChildren - 1 })}></span>
+						<span className="dashicons dashicons-plus" onClick={() => setAttributes({ noOfCards: noOfCards + 1 })}></span>
+						<span className="dashicons dashicons-minus" onClick={() => setAttributes({ noOfCards: noOfCards - 1 })}></span>
 					</div>
 				</div>
 			</fragment>
