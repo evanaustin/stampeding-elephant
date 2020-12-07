@@ -9,8 +9,13 @@
 import './editor.scss';
 import './style.scss';
 
+import times from "lodash/times";
+import memoize from "memize";
+
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
+const { RichText, AlignmentToolbar, BlockControls, InspectorControls, PanelColorSettings, InnerBlocks } = wp.blockEditor;
+const { TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleControl } = wp.components;
 
 /**
  * Register: aa Gutenberg Block.
@@ -25,16 +30,25 @@ const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.b
  * @return {?WPBlock}          The block, if it has been successfully
  *                             registered; otherwise `undefined`.
  */
-registerBlockType( 'cgb/block-slider', {
+registerBlockType('lu/block-slider-parent', {
 	// Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-	title: __( 'slider - CGB Block' ), // Block title.
-	icon: 'shield', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
+	title: __('Slider Parent'), // Block title.
+	icon: 'menu', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
 	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
 	keywords: [
-		__( 'slider — CGB Block' ),
-		__( 'CGB Example' ),
-		__( 'create-guten-block' ),
+		__('Accordion'),
+		__('Custom Blocks'),
+		__('Gutenberg'),
 	],
+	attributes: {
+		noOfChildren: {
+			type: 'number',
+			default: 2
+		},
+		blockId: {
+			type: 'string',
+		},
+	},
 
 	/**
 	 * The edit function describes the structure of your block in the context of the editor.
@@ -47,23 +61,42 @@ registerBlockType( 'cgb/block-slider', {
 	 * @param {Object} props Props.
 	 * @returns {Mixed} JSX Component.
 	 */
-	edit: ( props ) => {
-		// Creates a <p class='wp-block-cgb-block-slider'></p>.
+	edit: (props) => {
+		const {
+			attributes: {
+				noOfChildren,
+				styled
+			},
+			className,
+			setAttributes,
+			clientId,
+		} = props;
+
+		setAttributes({ blockId: clientId });
+
+		const ALLOWEDBLOCKS = ['lu/block-slider-child'];
+
+		const getChildSliderBlock = memoize(slider => {
+			return times(slider, n => ["lu/block-slider-child", {
+				id: n + 1
+			}]);
+		});
+
 		return (
-			<div className={ props.className }>
-				<p>— Hello from the backend.</p>
-				<p>
-					CGB BLOCK: <code>slider</code> is a new Gutenberg block
-				</p>
-				<p>
-					It was created via{ ' ' }
-					<code>
-						<a href="https://github.com/ahmadawais/create-guten-block">
-							create-guten-block
-						</a>
-					</code>.
-				</p>
-			</div>
+			<fragment>
+				<div className={{ className }}>
+					<div className={'sliderParentWrapper'}>
+						<p>[ Slider ]</p>
+						<InnerBlocks
+							template={getChildSliderBlock(noOfChildren)}
+							templateLock="all"
+							allowedBlocks={ALLOWEDBLOCKS}
+						/>
+						<span className="dashicons dashicons-plus" onClick={() => setAttributes({ noOfChildren: noOfChildren + 1 })}></span>
+						<span className="dashicons dashicons-minus" onClick={() => setAttributes({ noOfChildren: noOfChildren - 1 })}></span>
+					</div>
+				</div>
+			</fragment>
 		);
 	},
 
@@ -78,22 +111,56 @@ registerBlockType( 'cgb/block-slider', {
 	 * @param {Object} props Props.
 	 * @returns {Mixed} JSX Frontend HTML.
 	 */
-	save: ( props ) => {
+	save: (props) => {
+		const {
+			attributes: {
+				noOfChildren,
+			},
+			className,
+			setAttributes,
+			clientId
+		} = props;
+
 		return (
-			<div className={ props.className }>
-				<p>— Hello from the frontend.</p>
-				<p>
-					CGB BLOCK: <code>slider</code> is a new Gutenberg block.
-				</p>
-				<p>
-					It was created via{ ' ' }
-					<code>
-						<a href="https://github.com/ahmadawais/create-guten-block">
-							create-guten-block
-						</a>
-					</code>.
-				</p>
+			<div className='slider'>
+				<div className='slider_container'>
+					<InnerBlocks.Content />
+				</div>
 			</div>
 		);
 	},
-} );
+});
+
+/* Slider Child Block */
+registerBlockType('lu/block-slider-child', {
+	title: __('Slider Child'),
+	category: 'common',
+	parent: ['lu/block-slider-parent'],
+	edit: (props) => {
+		const { attributes, setAttributes, className, clientId } = props;
+
+		const ALLOWEDBLOCKS = ['core/paragraph'];
+		const BLOCKS_TEMPLATE = [
+			['core/paragraph', { placeholder: 'Lorem ipsum dolor sit amet' }],
+		];
+
+		return (
+			<div className={{ className }}>
+				<div className='slider'>
+					<InnerBlocks
+						template={BLOCKS_TEMPLATE}
+						templateLock={false}
+						allowedBlocks={ALLOWEDBLOCKS}
+					></InnerBlocks>
+				</div>
+			</div>
+		);
+	},
+	save: (props) => {
+		return (
+			<div className='slider_item cycle_slide'>
+				<InnerBlocks.Content />
+			</div>
+		);
+	},
+});
