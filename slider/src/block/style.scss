@@ -1,0 +1,104 @@
+/**
+ * #.# Styles
+ *
+ * CSS for both Frontend+Backend.
+ */
+
+ .slider {
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  width: 700px;
+  margin: 0 auto;
+}
+.slider.carousel {
+width: 100% !important;
+max-width: 100% !important;
+}
+.slider_container {
+  white-space: nowrap;
+}
+
+.slider .slider_item {
+  padding: 10px 20px;
+  white-space: normal;
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
+}
+.slider:not(.carousel) .slider_item {
+  padding:10px 20px;
+  white-space: normal;
+  display:inline-block;
+  width:100%;
+  vertical-align: top;
+  height: 100%;
+  min-height: 300px;
+  display: flex !important;
+  display: -webkit-flex;
+  align-items: center;
+  -webkit-align-items: center;
+  justify-content: center;
+  -webkit-justify-content: center;
+}
+.slider_container:after {
+  content: '';
+  clear: both;
+  float: none;
+  display: block;
+}
+.slider_content .row {
+  align-items: center;
+}
+
+.cardSlider {
+  width: 100%;
+  justify-content: center;
+}
+.card {
+  border: 1px solid #F1F1F1;
+  border-radius: 5px;
+  background-color: #F6F9FC;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+  margin: 0px 8px;
+  max-width: 250px;
+  white-space: normal;
+}
+.card_top, .card_bottom {
+  text-align: center;
+}
+.card_top {
+  padding: 20px 10px 25px;
+  background-color: #fff;
+}
+.card_bottom {
+  padding: 20px 15px;
+  border-radius: 0 0 5px 5px;
+}
+.card .card_top h3 {
+  color: #2773CB;
+  font-family: "PT Serif";
+  font-size: calc(2.8vw + 25px);
+  line-height: .8em;
+  margin-bottom: 0;
+}
+.card_top sup {
+  font-size: 24px;
+}
+.carousel_item:last-of-type .card {
+  margin-right: 0;
+}
+
+@media (min-width: 768px) {
+  .cardSlider {
+      display: flex;
+  }
+}
+@media (max-width: 767px) {
+  .card .cycle-slide {
+      max-width: none;
+  }
+  .cards_wrapper.cardSlider {
+      overflow: visible!important;
+  }
+}
