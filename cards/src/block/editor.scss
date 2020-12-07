@@ -8,8 +8,14 @@
 
 /* CARD EDITOR STYLES */
 
-.wp-block-lu-block-card {
-  // height: auto;
+.wp-block-lu-block-cards-child {
+  flex-grow: 1;
+}
+
+.cards {
+  .block-editor-block-list__layout {
+    display: flex;
+  }
 }
 
 

@@ -27,10 +27,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @uses {wp-editor} for WP editor styles.
  * @since 1.0.0
  */
-function card_lu_block_assets() { // phpcs:ignore
+function cards_lu_block_assets() { // phpcs:ignore
 	// Register block styles for both frontend + backend.
 	wp_register_style(
-		'card-lu-style-css', // Handle.
+		'cards-lu-style-css', // Handle.
 		plugins_url( 'dist/blocks.style.build.css', dirname( __FILE__ ) ), // Block style CSS.
 		is_admin() ? array( 'wp-editor' ) : null, // Dependency to include the CSS after it.
 		null // filemtime( plugin_dir_path( __DIR__ ) . 'dist/blocks.style.build.css' ) // Version: File modification time.
@@ -38,7 +38,7 @@ function card_lu_block_assets() { // phpcs:ignore
 
 	// Register block editor script for backend.
 	wp_register_script(
-		'card-lu-block-js', // Handle.
+		'cards-lu-block-js', // Handle.
 		plugins_url( '/dist/blocks.build.js', dirname( __FILE__ ) ), // Block.build.js: We register the block here. Built with Webpack.
 		array( 'wp-blocks', 'wp-i18n', 'wp-element', 'wp-editor' ), // Dependencies, defined above.
 		null, // filemtime( plugin_dir_path( __DIR__ ) . 'dist/blocks.build.js' ), // Version: filemtime — Gets file modification time.
@@ -47,7 +47,7 @@ function card_lu_block_assets() { // phpcs:ignore
 
 	// Register block editor styles for backend.
 	wp_register_style(
-		'card-lu-block-editor-css', // Handle.
+		'cards-lu-block-editor-css', // Handle.
 		plugins_url( 'dist/blocks.editor.build.css', dirname( __FILE__ ) ), // Block editor CSS.
 		array( 'wp-edit-blocks' ), // Dependency to include the CSS after it.
 		null // filemtime( plugin_dir_path( __DIR__ ) . 'dist/blocks.editor.build.css' ) // Version: File modification time.
@@ -55,7 +55,7 @@ function card_lu_block_assets() { // phpcs:ignore
 
 	// WP Localized globals. Use dynamic PHP stuff in JavaScript via `luGlobal` object.
 	wp_localize_script(
-		'card-lu-block-js',
+		'cards-lu-block-js',
 		'luGlobal', // Array containing dynamic data for a JS Global.
 		[
 			'pluginDirPath' => plugin_dir_path( __DIR__ ),
@@ -75,16 +75,16 @@ function card_lu_block_assets() { // phpcs:ignore
 	 * @since 1.16.0
 	 */
 	register_block_type(
-		'lu/block-card', array(
+		'lu/block-cards', array(
 			// Enqueue blocks.style.build.css on both frontend & backend.
-			'style'         => 'card-lu-style-css',
+			'style'         => 'cards-lu-style-css',
 			// Enqueue blocks.build.js in the editor only.
-			'editor_script' => 'card-lu-block-js',
+			'editor_script' => 'cards-lu-block-js',
 			// Enqueue blocks.editor.build.css in the editor only.
-			'editor_style'  => 'card-lu-block-editor-css',
+			'editor_style'  => 'cards-lu-block-editor-css',
 		)
 	);
 }
 
 // Hook: Block assets.
-add_action( 'init', 'card_lu_block_assets' );
+add_action( 'init', 'cards_lu_block_assets' );
