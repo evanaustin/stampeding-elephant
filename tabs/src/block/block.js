@@ -9,11 +9,16 @@
 import './editor.scss';
 import './style.scss';
 
+import times from "lodash/times";
+import memoize from "memize";
+
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
+const { RichText, AlignmentToolbar, BlockControls, InspectorControls, PanelColorSettings, InnerBlocks } = wp.blockEditor;
+const { TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleControl } = wp.components;
 
 /**
- * Register: aa Gutenberg Block.
+ * Register: Tabs Gutenberg Block.
  *
  * Registers a new block provided a unique name and an object defining its
  * behavior. Once registered, the block is made editor as an option to any
@@ -25,16 +30,29 @@ const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.b
  * @return {?WPBlock}          The block, if it has been successfully
  *                             registered; otherwise `undefined`.
  */
-registerBlockType( 'lu/block-tabs', {
+registerBlockType( 'lu/block-tabs-parent', {
 	// Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-	title: __( 'Tabs' ), // Block title.
+	title: __( 'Tabs Parent' ), // Block title.
 	icon: 'menu', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
 	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
 	keywords: [
 		__( 'Tabs' ),
 		__( 'Custom blocks' ),
-		__( 'Gutenburg' ),
+		__( 'Gutenberg' ),
 	],
+	attributes: {
+        noOfTabs: {
+            type: 'number',
+            default: 0,
+        },
+        tabID: {
+            type: 'string',
+        },
+        styled: {
+            type: 'boolean',
+            default: false,
+        },
+    },
 
 	/**
 	 * The edit function describes the structure of your block in the context of the editor.
@@ -48,7 +66,6 @@ registerBlockType( 'lu/block-tabs', {
 	 * @returns {Mixed} JSX Component.
 	 */
 	edit: ( props ) => {
-		// Creates a <p class='wp-block-cgb-block-tabs'></p>.
 		return (
 			<div className={ props.className }>
 				<p>— Hello from the backend.</p>
