@@ -11,8 +11,9 @@ import './style.scss';
 
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
-const { RichText, AlignmentToolbar, BlockControls, InspectorControls, PanelColorSettings, InnerBlocks } = wp.blockEditor;
-const { MenuGroup, MenuItem, TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleControl } = wp.components;
+const { Button, RichText, AlignmentToolbar, BlockControls, InspectorControls, PanelColorSettings, InnerBlocks } = wp.blockEditor;
+const { TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleControl } = wp.components;
+// const { withState } = wp.compose;
 
 /**
  * Register: aa Gutenberg Block.
@@ -30,7 +31,7 @@ const { MenuGroup, MenuItem, TextControl, PanelBody, PanelRow, RangeControl, Sel
 registerBlockType('lu/block-button', {
 	// Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
 	title: __('CTA Button'), // Block title.
-	icon: 'shield', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
+	icon: 'button', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
 	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
 	keywords: [
 		__('Button'),
@@ -40,11 +41,15 @@ registerBlockType('lu/block-button', {
 	attributes: {
 		style: {
 			type: 'string',
-			default: 'generic-green',
+			default: 'green',
 		},
 		title: {
-			type: 'number',
-			default: 0,
+			type: 'string',
+			default: 'Learn More',
+		},
+		href: {
+			type: 'string',
+			default: '#',
 		},
 	},
 
@@ -61,33 +66,67 @@ registerBlockType('lu/block-button', {
 	 */
 	edit: (props) => {
 		const {
-			attributes: {
-				style,
-				title,
-			},
+			attributes: { style, title, },
 			className,
+			setState,
 			setAttributes,
 			clientId,
 		} = props;
 
+		const styleOptions = [
+			{
+				label: 'Generic Green Button',
+				value: 'green',
+				defaultText: 'Learn More',
+			},
+			{
+				label: 'Green Apply Button',
+				value: 'green applyLink',
+				defaultText: 'Apply Now',
+			},
+			{
+				label: 'Generic Blue Button',
+				value: 'blue',
+				defaultText: 'Learn More',
+			},
+			{
+				label: 'Blue Request Info Button',
+				value: 'blue requestInfo request-info',
+				defaultText: 'Request Information',
+			},
+			{
+				label: 'Clear Ghost Button',
+				value: 'ghost',
+				defaultText: 'Learn More',
+			},
+		];
+
 		return (
 			<div className={className}>
+				<RichText
+					tagName="a"
+					value={title}
+					onChange={(value) => setAttributes({ title: value })}
+					// placeholder={__('Learn More')}
+					className={"btn button" + " " + style}
+				/>
+
 				<InspectorControls>
-					<panelBody title={__('Accordion Style Setting')} initialOpen={false}>
+					<panelBody title={__('Button Style Setting')} initialOpen={false}>
 						<panelRow>
-							<label><b>Button Style Setting</b></label>
-							{/* <ToggleControl
-								label={__('Styled Accordion')}
-								checked={!!styled}
-								onChange={() => setAttributes({ styled: !styled })}
-							/> */}
-							<MenuGroup
-								label={__('Button Styles')}
-								onChange={(value) => console.log(value)}
-							>
-								<MenuItem>Generic Green Button</MenuItem>
-								<MenuItem>Green Apply Now Button</MenuItem>
-							</MenuGroup>
+							<SelectControl
+								label={__('Button Style')}
+								value={style}
+								options={styleOptions}
+								onChange={(value) => {
+									const selected = Object.values(styleOptions).filter(o => {
+										return o.value == value;
+									})[0];
+
+									setAttributes({ style: value });
+									setAttributes({ title: selected.defaultText });
+								}}
+							/>
 						</panelRow>
 					</panelBody>
 				</InspectorControls>
@@ -107,20 +146,16 @@ registerBlockType('lu/block-button', {
 	 * @returns {Mixed} JSX Frontend HTML.
 	 */
 	save: (props) => {
+		const { attributes, className, } = props;
+		const { style, title, } = attributes;
+
 		return (
-			<div className={props.className}>
-				<p>— Hello from the frontend.</p>
-				<p>
-					LU BLOCK: <code>button</code> is a new Gutenberg block.
-				</p>
-				<p>
-					It was created via{' '}
-					<code>
-						<a href="https://github.com/ahmadawais/create-guten-block">
-							create-guten-block
-						</a>
-					</code>.
-				</p>
+			<div className={className}>
+				<RichText.Content
+					tagName="a"
+					value={title}
+					className={"btn button" + " " + style}
+				/>
 			</div>
 		);
 	},
