@@ -223,12 +223,8 @@ registerBlockType('lu/block-tab-title', {
 		);
 	},
 	save: (props) => {
-		const { attributes, className } = props;
-
-		const {
-			style,
-			title,
-		} = attributes;
+		const { attributes, className, } = props;
+		const { style, title, } = attributes;
 
 		return (
 			<div className="tab">
