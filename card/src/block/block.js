@@ -30,13 +30,13 @@ console.log('card block.js');
  */
 registerBlockType('lu/block-card', {
 	// Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-	title: __('Card', 'Gutenburg'), // Block title.
+	title: __('Card', 'Gutenberg'), // Block title.
 	icon: 'index-card', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
 	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
 	keywords: [
 		__('Card'),
 		__('Custom blocks'),
-		__('Gutenburg'),
+		__('Gutenberg'),
 	],
 	attributes: {
 		sup: {
