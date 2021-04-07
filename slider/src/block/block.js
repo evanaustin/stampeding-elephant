@@ -9,8 +9,8 @@
 import './editor.scss';
 import './style.scss';
 
-import times from "lodash/times";
-import memoize from "memize";
+// import times from "lodash/times";
+// import memoize from "memize";
 
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
@@ -36,7 +36,7 @@ registerBlockType('lu/block-slider-parent', {
 	icon: 'menu', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
 	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
 	keywords: [
-		__('Accordion'),
+		__('Slider'),
 		__('Custom Blocks'),
 		__('Gutenberg'),
 	],
@@ -75,12 +75,15 @@ registerBlockType('lu/block-slider-parent', {
 		setAttributes({ blockId: clientId });
 
 		const ALLOWEDBLOCKS = ['lu/block-slider-child'];
+		const BLOCKS_TEMPLATE = [
+            ['lu/block-slider-child'],
+        ];
 
-		const getChildSliderBlock = memoize(slider => {
-			return times(slider, n => ["lu/block-slider-child", {
-				id: n + 1
-			}]);
-		});
+		// const getChildSliderBlock = memoize(slider => {
+		// 	return times(slider, n => ["lu/block-slider-child", {
+		// 		id: n + 1
+		// 	}]);
+		// });
 
 		return (
 			<fragment>
@@ -88,12 +91,12 @@ registerBlockType('lu/block-slider-parent', {
 					<div className={'sliderParentWrapper'}>
 						<p>[ Slider ]</p>
 						<InnerBlocks
-							template={getChildSliderBlock(noOfChildren)}
-							templateLock="all"
+							template={BLOCKS_TEMPLATE}
+							templateLock={false}
 							allowedBlocks={ALLOWEDBLOCKS}
 						/>
-						<span className="dashicons dashicons-plus" onClick={() => setAttributes({ noOfChildren: noOfChildren + 1 })}></span>
-						<span className="dashicons dashicons-minus" onClick={() => setAttributes({ noOfChildren: noOfChildren - 1 })}></span>
+						{/* <span className="dashicons dashicons-plus" onClick={() => setAttributes({ noOfChildren: noOfChildren + 1 })}></span>
+						<span className="dashicons dashicons-minus" onClick={() => setAttributes({ noOfChildren: noOfChildren - 1 })}></span> */}
 					</div>
 				</div>
 			</fragment>
