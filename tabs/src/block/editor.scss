@@ -5,11 +5,51 @@
  * which makes it higher in priority.
  */
 
-.wp-block-cgb-block-tabs  {
-  background: $green;
-  border: 0.2rem solid $black;
-  color: $black;
-  margin: 0 auto;
-  max-width: 740px;
-  padding: 2rem;
+.tabs-block {
+    .tabs {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #dadada;
+
+        .tab {
+            display: flex;
+            margin-right: 0.5rem;
+            margin-bottom: -1px;
+
+            &.active {
+                .tab_title {
+                    border-bottom-color: #2773cb;
+                }
+            }
+
+            .tab_title {
+                padding: 7px 20px;
+                color: #2773cb;
+                cursor: pointer;
+                border-bottom: 5px solid transparent;
+
+                p {
+                    margin: 0;
+                }
+            }
+        }
+
+        // .indicator {
+        //     position: absolute;
+        //     bottom: 0;
+        //     height: 3px;
+        //     will-change: left, right;
+        //     background-color: violet;
+        // }
+    }
+
+    .tabs_content {
+        .tab_content {
+            display: none;
+
+            &.active {
+                display: block;
+            }
+        }
+    }
 }

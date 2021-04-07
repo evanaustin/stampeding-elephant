@@ -1,1 +1,37 @@
-.wp-block-cgb-block-tabs{background:#bada55;border:0.2rem solid #292929;color:#292929;margin:0 auto;max-width:740px;padding:2rem}
+/**
+ * #.# Common SCSS
+ *
+ * Can include things like variables and mixins
+ * that are used across the project.
+*/
+/**
+ * #.# Editor Styles
+ *
+ * CSS for just Backend enqueued after style.scss
+ * which makes it higher in priority.
+ */
+.tabs-block .tabs {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  border-bottom: 1px solid #dadada; }
+  .tabs-block .tabs .tab {
+    display: -ms-flexbox;
+    display: flex;
+    margin-right: 0.5rem;
+    margin-bottom: -1px; }
+    .tabs-block .tabs .tab.active .tab_title {
+      border-bottom-color: #2773cb; }
+    .tabs-block .tabs .tab .tab_title {
+      padding: 7px 20px;
+      color: #2773cb;
+      cursor: pointer;
+      border-bottom: 5px solid transparent; }
+      .tabs-block .tabs .tab .tab_title p {
+        margin: 0; }
+
+.tabs-block .tabs_content .tab_content {
+  display: none; }
+  .tabs-block .tabs_content .tab_content.active {
+    display: block; }

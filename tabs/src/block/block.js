@@ -9,290 +9,226 @@
 import './editor.scss';
 import './style.scss';
 
-import times from "lodash/times";
-import memoize from "memize";
 
-const { __ } = wp.i18n; // Import __() from wp.i18n
-const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
-const { RichText, AlignmentToolbar, BlockControls, InspectorControls, PanelColorSettings, InnerBlocks } = wp.blockEditor;
-const { TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleControl } = wp.components;
+const { __ } = wp.i18n;
+const { Component, Fragment } = wp.element;
+const { registerBlockType, createBlock } = wp.blocks;
+const { InspectorControls, RichText, PanelColorSettings } = wp.blockEditor;
+const { Dashicon, Tooltip, PanelBody, RangeControl, SelectControl } = wp.components;
 
-/**
- * Register: Tabs Gutenberg Block.
- *
- * Registers a new block provided a unique name and an object defining its
- * behavior. Once registered, the block is made editor as an option to any
- * editor interface where blocks are implemented.
- *
- * @link https://wordpress.org/gutenberg/handbook/block-api/
- * @param  {string}   name     Block name.
- * @param  {Object}   settings Block settings.
- * @return {?WPBlock}          The block, if it has been successfully
- *                             registered; otherwise `undefined`.
- */
-registerBlockType('lu/block-tabs-parent', {
-	// Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-	title: __('Tabs'), // Block title.
-	icon: 'menu', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
-	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
-	keywords: [
-		__('Tabs'),
-		__('Custom blocks'),
-		__('Gutenberg'),
-	],
-	attributes: {
-		noOfTabs: {
-			type: 'number',
-			default: 0,
-		},
-		blockId: {
-			type: 'string',
-		},
-		style: {
-			type: 'string',
-			default: 'regular',
-		},
-	},
+class TabsBlock extends Component {
+    constructor() {
+        super(...arguments);
+    }
 
-	/**
-	 * The edit function describes the structure of your block in the context of the editor.
-	 * This represents what the editor will render when the block is used.
-	 *
-	 * The "edit" property must be a valid function.
-	 *
-	 * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
-	 *
-	 * @param {Object} props Props.
-	 * @returns {Mixed} JSX Component.
-	 */
-	edit: (props) => {
-		const {
-			attributes: {
-				noOfTabs,
-				style
-			},
-			className,
-			setAttributes,
-			clientId,
-		} = props;
+    componentWillMount() {
+        const { attributes, setAttributes } = this.props;
 
-		setAttributes({ blockId: clientId });
+        // No override attributes of blocks inserted before
+        if (attributes.changed !== true) {
+            // Set changed attribute to true, so we don't modify anything again
+            setAttributes({ changed: true });
+        }
+    }
 
-		const ALLOWEDTITLEBLOCKS = ['lu/block-tab-title'];
-		const ALLOWEDCONTENTBLOCKS = ['lu/block-tab-content'];
+    componentDidMount() {
+        if (!this.props.attributes.blockID) {
+            this.props.setAttributes({ blockID: this.props.clientId });
+        }
+    }
 
-		const ALLOWEDBLOCKS = ['core/paragraph'];
-        const BLOCKS_TEMPLATE = [
-            ['core/paragraph', { placeholder: 'Lorem ipsum dolor sit amet' }],
-        ];
+    componentDidUpdate(prevProps) {
+        const { tabItems: prevItems } = prevProps.attributes;
+        const { tabItems } = this.props.attributes;
 
-		const getTabTitleBlocks = memoize(tabTitles => {
-			return times(tabTitles, n => ["lu/block-tab-title", {
-				id: n + 1
-			}]);
-		});
-		
-		const getTabContentBlocks = memoize(tabContents => {
-			return times(tabContents, n => ["lu/block-tab-content", {
-				id: n + 1
-			}]);
-		});
+        if (tabItems.length === 0) {
+            this.props.setAttributes({
+                tabItems: [
+                    {
+                        header: 'Tab 1',
+                        body: 'At least one tab must remaining, to remove block use "Remove Block" button from right menu.',
+                    },
+                ],
+            });
+        }
+    }
 
-		return (
-			<fragment>
-				<div className={{ className }}>
-					<div className={'tabsParentWrapper tabs_wrapper'}>
-						<p>[ Tabs ]</p>
+    updateTabs(value, index) {
+        const { attributes, setAttributes } = this.props;
+        const { tabItems } = attributes;
 
-						<div className="tabs">
-							<InnerBlocks
-								template={getTabTitleBlocks(noOfTabs)}
-								templateLock="all"
-								allowedBlocks={ALLOWEDTITLEBLOCKS}
-							/>
-						</div>
+        let newItems = tabItems.map((item, thisIndex) => {
+            if (index === thisIndex) {
+                item = { ...item, ...value };
+            }
 
-						<div className="tabs_content">
-							<InnerBlocks
-								template={BLOCKS_TEMPLATE}
-								templateLock="all"
-								allowedBlocks={ALLOWEDBLOCKS}
-							/>
-							{/* <InnerBlocks
-								template={getTabContentBlocks(noOfTabs)}
-								templateLock="all"
-								allowedBlocks={ALLOWEDCONTENTBLOCKS}
-							/> */}
-						</div>
+            return item;
+        });
 
-						<span className="dashicons dashicons-plus" onClick={() => setAttributes({ noOfTabs: noOfTabs + 1 })}></span>
-						<span className="dashicons dashicons-minus" onClick={() => setAttributes({ noOfTabs: noOfTabs - 1 })}></span>
-					</div>
+        setAttributes({ tabItems: newItems });
+    }
 
-					<InspectorControls>
-						<panelBody title={__('Tabs Style Setting')} initialOpen={false}>
-							<panelRow>
-								<label><b>Style Setting</b></label>
-								<ToggleControl
-									label={__('Style Tabs')}
-									checked={!!style}
-									onChange={() => setAttributes({ style: !style })}
-								/>
-							</panelRow>
-						</panelBody>
-					</InspectorControls>
-				</div>
-			</fragment>
-		);
-	},
+    render() {
+        const { attributes, setAttributes, clientId } = this.props;
+        const {
+            blockID,
+            tabItems,
+            activeTab,
+        } = attributes;
 
-	/**
-	 * The save function defines the way in which the different attributes should be combined
-	 * into the final markup, which is then serialized by Gutenberg into post_content.
-	 *
-	 * The "save" property must be specified and must be a valid function.
-	 *
-	 * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
-	 *
-	 * @param {Object} props Props.
-	 * @returns {Mixed} JSX Frontend HTML.
-	 */
-	save: (props) => {
-		const {
-			attributes: {
-				noOfTabs,
-				style
-			},
-			className,
-			setAttributes,
-			clientId
-		} = props;
+        return (
+            <Fragment>
+                <div className="tabs-block">
+                    <div className="tab_wrapper">
+                        <div className="tabs">
+                            {tabItems.map((item, index) => (
+                                <div key={index}
+                                    className="tab"
+                                    data-tab={index}
+                                >
+                                    <a className="tab_title">
+                                        <RichText
+                                            tagName="p"
+                                            value={item.header}
+                                            onChange={(value) => this.updateTabs({ header: value || '' }, index)}
+                                            onClick={() => setAttributes({ activeTab: index })}
+                                            unstableOnSplit={() => null}
+                                            placeholder={__('Title…')}
+                                        />
 
-		return (
-			<div className="tab_wrapper">
-				<div className="tabs">
-					<InnerBlocks.Content />
-				</div>
+                                        {/* <a href={`#tab-${blockID}-${index}`}>
+                                            <Dashicon icon="pencil" />
+                                        </a> */}
+                                    </a>
 
-				<div className="tabs_content">
-					<InnerBlocks.Content />
-				</div>
-			</div>
-		);
-	},
-});
+                                    <Tooltip text={__('Remove tab')}>
+                                        <span className="tab-remove"
+                                            onClick={() => setAttributes({
+                                                tabItems: tabItems.filter((vl, idx) => idx !== index),
+                                                activeTab: 0
+                                            })}
+                                        >
+                                            <Dashicon icon="no" />
+                                        </span>
+                                    </Tooltip>
+                                </div>
+                            ))}
 
+                            <div className="add-tab">
+                                <Tooltip text={__('Add tab')}>
+                                    <span onClick={() => setAttributes({
+                                        tabItems: [
+                                            ...tabItems,
+                                            { header: __('New Tab'), body: __('Enter your content.') }
+                                        ]
+                                    })}>
+                                        <Dashicon icon="plus-alt" />
+                                    </span>
+                                </Tooltip>
+                            </div>
+                        </div>
 
-/* Tab Title Block */
-registerBlockType('lu/block-tab-title', {
-	title: __('Tab Title'),
-	category: 'common',
-	parent: ['lu/block-tabs-parent'],
-	attributes: {
-		style: {
-			type: 'string',
-			default: 'regular',
-		},
-		title: {
-			type: 'string',
-		},
-	},
-	edit: (props) => {
-		const { attributes, setAttributes, className, clientId } = props;
-		const parentBlocks = wp.data.select('core/block-editor').getBlockParents(clientId);
-		const parentAttributes = wp.data.select('core/block-editor').getBlocksByClientId(parentBlocks)[0].attributes;
-		{ setAttributes({ style: parentAttributes.style }) }
+                        <div class="tabs_content">
+                            {tabItems.map((item, index) => (
+                                <div key={index}
+                                    id={`tab-${blockID}-${index}`}
+                                    className={`tab_content ${activeTab == index ? 'active' : 'inactive'}`}
+                                    data-tab={index}
+                                >
+                                    <RichText
+                                        tagName="p"
+                                        value={item.body}
+                                        onChange={(value) => this.updateTabs({ body: value }, index)}
+                                        placeholder={__('Enter text…')}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </Fragment>
+        )
+    }
+}
 
-		const {
-			style,
-			title,
-		} = attributes;
+const tabBlockAttrs = {
+    tabItems: {
+        type: "array",
+        default: [
+            {
+                header: __('Tab 1'),
+                body: __('Filler text (also placeholder text or dummy text) is text that shares some characteristics of a real written text, but is random or otherwise generated.')
+            },
+            {
+                header: __('Tab 2'),
+                body: __('Filler text (also placeholder text or dummy text) is text that shares some characteristics of a real written text, but is random or otherwise generated.')
+            },
+            {
+                header: __('Tab 3'),
+                body: __('Filler text (also placeholder text or dummy text) is text that shares some characteristics of a real written text, but is random or otherwise generated.')
+            },
+        ]
+    },
+    blockID: {
+        type: 'string',
+    },
+    activeTab: {
+        type: 'number',
+        default: 0,
+    },
+    changed: {
+        type: 'boolean',
+        default: false,
+    },
+};
 
-		return (
-			<div className={{ className }}>
-				<div className='tab'>
-					<RichText
-						tagName="div"
-						value={title}
-						onChange={(value) => setAttributes({ title: value })}
-						placeholder={__('Tab title')}
-						className="tab_title"
-					/>
-				</div>
-			</div>
-		);
-	},
-	save: (props) => {
-		const { attributes, className, } = props;
-		const { style, title, } = attributes;
+registerBlockType('lu/block-tabs', {
+    title: __('Tabs'),
+    icon: 'menu',
+    category: 'common',
+    keywords: [
+        __('Tabs'),
+        __('Custom blocks'),
+        __('Gutenberg'),
+    ],
+    attributes: tabBlockAttrs,
+    edit: TabsBlock,
+    save: ({ attributes }) => {
+        const {
+            blockID,
+            tabItems,
+        } = attributes;
 
-		return (
-			<div className="tab">
-				<RichText.Content
-					tagName="div"
-					value={title}
-					className="tab_title"
-				/>
-			</div>
-		);
-	},
-});
+        return (
+            <div id={`tabs-${blockID}`}
+                className="tab_wrapper"
+                style={{ border: 'none' }}
+            >
+                <div className="tabs">
+                    {tabItems.map((item, index) => (
+                        <div key={index}
+                            className="tab"
+                            data-tab={index}
+                        >
+                            <div className="tab_title">
+                                <RichText.Content tagName="span" value={item.header} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
 
-/* Tab Content Block */
-registerBlockType('lu/block-tab-content', {
-	title: __('Tab Content'),
-	category: 'common',
-	parent: ['lu/block-accordion-parent'],
-	attributes: {
-		style: {
-			type: 'string',
-			default: 'regular',
-		},
-	},
-	edit: (props) => {
-		const { attributes, setAttributes, className, clientId } = props;
-		const parentBlocks = wp.data.select('core/block-editor').getBlockParents(clientId);
-		const parentAttributes = wp.data.select('core/block-editor').getBlocksByClientId(parentBlocks)[0].attributes;
-		{ setAttributes({ style: parentAttributes.style }) }
-
-		const {
-			style,
-		} = attributes;
-
-		const ALLOWEDBLOCKS = ['core/paragraph'];
-		const BLOCKS_TEMPLATE = [
-			['core/paragraph', { placeholder: 'Lorem ipsum dolor sit amet' }],
-		];
-
-		// const subtitleDisplay = styled ? 'block' : 'none';
-
-		return (
-			<div className={{ className }}>
-				<div className='tabs_content'>
-					<div className='tabContent'>
-						<InnerBlocks
-							template={BLOCKS_TEMPLATE}
-							templateLock={false}
-							allowedBlocks={ALLOWEDBLOCKS}
-						></InnerBlocks>
-					</div>
-				</div>
-			</div>
-		);
-	},
-	save: (props) => {
-		const { attributes, className } = props;
-
-		const {
-			style,
-		} = attributes;
-
-		return (
-			<div className={'tabs_content'}>
-				<div className='tabContent'>
-					<InnerBlocks.Content />
-				</div>
-			</div>
-		);
-	},
+                <div className="tabs_content">
+                    {tabItems.map((item, index) => (
+                        <div key={index}
+                            id={`tab-${blockID}-${index}`}
+                            className="tab_content"
+                            data-tab={index}
+                        >
+                            <RichText.Content tagName="p" value={item.body} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    },
 });
