@@ -1,0 +1,201 @@
+/**
+ * #.# Common SCSS
+ *
+ * Can include things like variables and mixins
+ * that are used across the project.
+*/
+/**
+ * #.# Editor Styles
+ *
+ * CSS for just Backend enqueued after style.scss
+ * which makes it higher in priority.
+ */
+#admission_steps {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: center;
+      justify-content: center;
+  background-color: #f5f5f5;
+  text-align: center;
+  padding: 16px 0;
+  margin-bottom: 24px;
+  z-index: 999; }
+  #admission_steps .steps_title {
+    display: none; }
+  #admission_steps ul {
+    list-style: none; }
+  #admission_steps ul.step_list {
+    display: inline-block;
+    margin-bottom: 0; }
+  #admission_steps li.step_item {
+    display: -ms-flexbox;
+    display: flex;
+    float: left;
+    margin: 0 10px; }
+  #admission_steps .step_remove {
+    margin-left: 5px; }
+  #admission_steps .step_add {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+        align-items: center;
+    margin: 2rem; }
+  #admission_steps ul.step_item_list {
+    text-align: center; }
+    #admission_steps ul.step_item_list li {
+      margin: 0; }
+  #admission_steps a.step_circle {
+    border-radius: 100%;
+    background-color: #ffffff;
+    color: #2773cb;
+    font-weight: 700;
+    position: relative;
+    font-family: sans-serif;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin: 0 0 7.5px 0; }
+    #admission_steps a.step_circle:hover {
+      text-decoration: none; }
+    #admission_steps a.step_circle:focus {
+      text-decoration: none; }
+  #admission_steps a.step_circle.active {
+    background-color: #2773cb;
+    color: #ffffff; }
+  #admission_steps li.step_description {
+    color: #2773cb;
+    font-size: 12px;
+    line-height: 14px;
+    margin: 0; }
+
+#admission_steps.progressbar_dots {
+  position: relative; }
+  #admission_steps.progressbar_dots .progress {
+    max-width: 75%;
+    height: 0.35rem;
+    display: -ms-flexbox;
+    display: flex;
+    border-top: 1px solid #bbbbbb !important;
+    border-bottom: 1px solid #bbbbbb !important;
+    position: absolute;
+    top: 25px;
+    left: 0;
+    right: 0;
+    z-index: 0;
+    margin-bottom: 0;
+    margin: 0 auto;
+    font-size: 0.75rem;
+    line-height: 0.3rem;
+    text-align: center;
+    background-color: #bbbbbb;
+    border-radius: 0.25rem;
+    overflow: hidden; }
+  #admission_steps.progressbar_dots .progress-bar {
+    max-width: 100%;
+    background-color: #2773cb; }
+  #admission_steps.progressbar_dots ul.step_list {
+    max-width: 100%;
+    height: 100%;
+    position: relative;
+    margin: 0 auto;
+    display: block; }
+  #admission_steps.progressbar_dots li.step_item {
+    width: 25%;
+    margin: 0;
+    list-style-type: none; }
+  #admission_steps.progressbar_dots ul.step_item_list {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column-reverse;
+        flex-direction: column-reverse; }
+  #admission_steps.progressbar_dots li.dot {
+    width: 23px;
+    height: 23px;
+    margin: 0 auto;
+    background: #fff;
+    border: 4px #bbbbbb solid;
+    border-radius: 50%; }
+  #admission_steps.progressbar_dots li.dot.active {
+    background: #2773cb;
+    border: 4px #2773cb solid; }
+  #admission_steps.progressbar_dots li .step_description {
+    color: #3e3e3e;
+    font-size: 16px;
+    line-height: 14px;
+    font-weight: 700;
+    font-family: sans-serif;
+    text-align: center; }
+  #admission_steps.progressbar_dots li .step_description.active {
+    color: #2773cb;
+    cursor: pointer;
+    text-decoration: none; }
+  #admission_steps.progressbar_dots li .step_description.newestActive {
+    pointer-events: none; }
+
+#admission_steps.sticky {
+  position: absolute;
+  width: 100%; }
+
+#admission_steps.numbersAndWords a.step_circle {
+  width: 55px;
+  height: 55px;
+  line-height: 17px;
+  font-size: 11px;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: center;
+      justify-content: center;
+  -ms-flex-direction: column;
+      flex-direction: column; }
+
+#admission_steps.words a.step_circle {
+  width: 40px;
+  height: 40px;
+  line-height: 40px; }
+
+@media (min-width: 768px) {
+  #admission_steps.progressbar_dots li .step_description:hover {
+    color: #2773cb;
+    cursor: pointer;
+    text-decoration: none; }
+  #admission_steps.progressbar_dots li .step_description.hover {
+    color: #2773cb;
+    cursor: pointer;
+    text-decoration: none; }
+  #admission_steps.progressbar_dots ul.step_item_list li:hover a {
+    color: #2773cb;
+    cursor: pointer;
+    text-decoration: none; }
+  #admission_steps.progressbar_dots ul.step_item_list li.dot:hover {
+    color: #2773cb;
+    cursor: pointer;
+    text-decoration: none; } }
+
+@media (max-width: 980px) {
+  #admission_steps {
+    padding: 8px 0 0; }
+    #admission_steps .steps_title {
+      display: block;
+      color: #222;
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 24px;
+      margin-bottom: 8px; }
+    #admission_steps li.step_description {
+      display: none; }
+  #admission_steps.progressbar_dots {
+    padding: 8px 0 4px; }
+    #admission_steps.progressbar_dots .progress {
+      top: 17px; }
+    #admission_steps.progressbar_dots li.step_description {
+      display: block;
+      margin-top: 3px;
+      font-size: 14px; } }
+
+@media (max-width: 375px) {
+  #admission_steps li.step_item {
+    margin: 0 5px; }
+  #admission_steps.progressbar_dots li.step_item {
+    margin: 0; }
+  #admission_steps.progressbar_dots li.step_description {
+    font-size: 12px; } }
