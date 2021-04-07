@@ -9,14 +9,10 @@
 import './editor.scss';
 import './style.scss';
 
-import times from "lodash/times";
-import memoize from "memize";
-
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
-const { RichText, AlignmentToolbar, BlockControls, InspectorControls, PanelColorSettings, InnerBlocks } = wp.blockEditor;
+const { RichText, /* AlignmentToolbar, */ BlockControls, InspectorControls, PanelColorSettings, InnerBlocks } = wp.blockEditor;
 const { TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleControl } = wp.components;
-
 
 /**
  * Register: Accordion Gutenberg Block.
@@ -77,12 +73,9 @@ registerBlockType('lu/block-accordion-parent', {
         setAttributes({ blockId: clientId });
 
         const ALLOWEDBLOCKS = ['lu/block-accordion-child'];
-
-        const getChildAccordionBlock = memoize(accordion => {
-            return times(accordion, n => ["lu/block-accordion-child", {
-                id: n + 1
-            }]);
-        });
+        const BLOCKS_TEMPLATE = [
+            ['lu/block-accordion-child'],
+        ];
 
         const styledAccordion = styled ? 'styled-accordion' : '';
 
@@ -92,12 +85,10 @@ registerBlockType('lu/block-accordion-parent', {
                     <div className={'accordionParentWrapper accordion' + ' ' + styledAccordion}>
                         <p>[ Accordion ]</p>
                         <InnerBlocks
-                            template={getChildAccordionBlock(noOfChildren)}
-                            templateLock="all"
+                            template={BLOCKS_TEMPLATE}
+                            templateLock={false}
                             allowedBlocks={ALLOWEDBLOCKS}
                         />
-                        <span className="dashicons dashicons-plus" onClick={() => setAttributes({ noOfChildren: noOfChildren + 1 })}></span>
-                        <span className="dashicons dashicons-minus" onClick={() => setAttributes({ noOfChildren: noOfChildren - 1 })}></span>
                     </div>
 
                     <InspectorControls>
@@ -157,6 +148,7 @@ registerBlockType('lu/block-accordion-child', {
     attributes: {
         title: {
             type: 'string',
+            default: ''
         },
         subtitle: {
             type: 'string',
@@ -175,7 +167,7 @@ registerBlockType('lu/block-accordion-child', {
         const { attributes, setAttributes, className, clientId } = props;
         const parentBlocks = wp.data.select('core/block-editor').getBlockParents(clientId);
         const parentAttributes = wp.data.select('core/block-editor').getBlocksByClientId(parentBlocks)[0].attributes;
-        { setAttributes({ styled: parentAttributes.styled }) }
+        setAttributes({ styled: parentAttributes.styled })
 
         const {
             title,
@@ -186,7 +178,7 @@ registerBlockType('lu/block-accordion-child', {
 
         const ALLOWEDBLOCKS = ['core/paragraph'];
         const BLOCKS_TEMPLATE = [
-            ['core/paragraph', { placeholder: 'Lorem ipsum dolor sit amet' }],
+            ['core/paragraph', { value: 'Lorem ipsum dolor sit amet' }],
         ];
 
         const subtitleDisplay = styled ? 'block' : 'none';
@@ -218,7 +210,6 @@ registerBlockType('lu/block-accordion-child', {
                             templateLock={false}
                             allowedBlocks={ALLOWEDBLOCKS}
                         ></InnerBlocks>
-
                     </div>
                 </div>
 
@@ -248,7 +239,7 @@ registerBlockType('lu/block-accordion-child', {
         } = attributes;
 
 
-        const tabOpen = open ? 'tabOpen' : 'tabClose';
+        const tabOpen = open ? 'tabOpen active' : 'tabClose';
         const subtitleDisplay = styled ? 'block' : 'none';
         const bodyDisplay = open ? 'block' : 'none';
 
