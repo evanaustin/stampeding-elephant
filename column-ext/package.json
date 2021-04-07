@@ -1,0 +1,14 @@
+{
+  "name": "generic-guten-block",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "cgb-scripts start",
+    "build": "cgb-scripts build",
+    "eject": "cgb-scripts eject"
+  },
+  "dependencies": {
+    "cgb-scripts": "1.23.1",
+    "lodash": "^4.17.21"
+  }
+}
