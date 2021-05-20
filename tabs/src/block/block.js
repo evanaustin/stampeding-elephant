@@ -13,7 +13,7 @@ import './style.scss';
 const { __ } = wp.i18n;
 const { Component, Fragment } = wp.element;
 const { registerBlockType, createBlock } = wp.blocks;
-const { InspectorControls, RichText, PanelColorSettings } = wp.blockEditor;
+const { InspectorControls, InnerBlocks, RichText, PanelColorSettings } = wp.blockEditor;
 const { Dashicon, Tooltip, PanelBody, RangeControl, SelectControl } = wp.components;
 
 class TabsBlock extends Component {
@@ -76,6 +76,11 @@ class TabsBlock extends Component {
             activeTab,
         } = attributes;
 
+        const ALLOWEDBLOCKS = ['lu/block-tab-child'];
+        const BLOCKS_TEMPLATE = [
+            ['lu/block-tab-child'],
+        ];
+
         return (
             <Fragment>
                 <div className="tabs-block">
@@ -83,7 +88,7 @@ class TabsBlock extends Component {
                         <div className="tabs">
                             {tabItems.map((item, index) => (
                                 <div key={index}
-                                    className="tab"
+                                    className={`tab ${activeTab == index ? 'active' : ''}`}
                                     data-tab={index}
                                 >
                                     <a className="tab_title">
@@ -135,12 +140,19 @@ class TabsBlock extends Component {
                                     className={`tab_content ${activeTab == index ? 'active' : 'inactive'}`}
                                     data-tab={index}
                                 >
-                                    <RichText
+                                    <InnerBlocks
+                                        className={`tab-child-${index}`}
+                                        template={BLOCKS_TEMPLATE}
+                                        templateLock={false}
+                                        allowedBlocks={ALLOWEDBLOCKS}
+                                    />
+
+                                    {/* <RichText
                                         tagName="p"
                                         value={item.body}
                                         onChange={(value) => this.updateTabs({ body: value }, index)}
                                         placeholder={__('Enter text…')}
-                                    />
+                                    /> */}
                                 </div>
                             ))}
                         </div>
@@ -207,7 +219,7 @@ registerBlockType('lu/block-tabs', {
                 <div className="tabs">
                     {tabItems.map((item, index) => (
                         <div key={index}
-                            className="tab"
+                            className={`tab ${index == 0 ? 'active' : ''}`}
                             data-tab={index}
                         >
                             <div className="tab_title">
@@ -221,13 +233,87 @@ registerBlockType('lu/block-tabs', {
                     {tabItems.map((item, index) => (
                         <div key={index}
                             id={`tab-${blockID}-${index}`}
-                            className="tab_content"
+                            className={`tab_content ${index == 0 ? 'active' : ''}`}
                             data-tab={index}
                         >
                             <RichText.Content tagName="p" value={item.body} />
+                            {/* <InnerBlocks.Content /> */}
                         </div>
                     ))}
                 </div>
+            </div>
+        );
+    },
+});
+
+/* Accordion Child Block */
+registerBlockType('lu/block-tab-child', {
+    title: __('Tab Child'),
+    category: 'common',
+    parent: ['lu/block-tabs'],
+    /* attributes: {
+        title: {
+            type: 'string',
+            default: ''
+        },
+        subtitle: {
+            type: 'string',
+            default: ''
+        },
+        open: {
+            type: 'boolean',
+            default: false,
+        },
+        styled: {
+            type: 'boolean',
+            default: false,
+        },
+    }, */
+    edit: (props) => {
+        const { /* attributes, */ setAttributes, className, clientId } = props;
+        // const parentBlocks = wp.data.select('core/block-editor').getBlockParents(clientId);
+        // const parentAttributes = wp.data.select('core/block-editor').getBlocksByClientId(parentBlocks)[0].attributes;
+        // setAttributes({ styled: parentAttributes.styled })
+
+        /* const {
+            title,
+            subtitle,
+            open,
+            styled,
+        } = attributes; */
+
+        const ALLOWEDBLOCKS = ['core/paragraph'];
+        const BLOCKS_TEMPLATE = [
+            ['core/paragraph', { value: 'Lorem ipsum dolor sit amet' }],
+        ];
+
+        // const subtitleDisplay = styled ? 'block' : 'none';
+
+        return (
+            <div className={{ className }}>
+                <InnerBlocks
+                    template={BLOCKS_TEMPLATE}
+                    templateLock={false}
+                    allowedBlocks={ALLOWEDBLOCKS}
+                ></InnerBlocks>
+            </div>
+        );
+    },
+    save: (props) => {
+        const { /* attributes, */ className } = props;
+
+        /* const {
+            open,
+            styled,
+            title,
+            subtitle,
+        } = attributes; */
+
+
+
+        return (
+            <div className={'accordionWrapper accordion_item' + ' ' + tabOpen}>
+                <InnerBlocks.Content />
             </div>
         );
     },
