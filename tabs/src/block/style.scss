@@ -3,3 +3,108 @@
  *
  * CSS for both Frontend+Backend.
  */
+
+ .wp-block-cgb-block-tab-layout  {
+  margin: 0 auto;
+  width: 100%;
+  padding-top: 40px;
+}
+
+//make inner blocks appear horizontally (not sure I should be modifying Gutenberg CSS
+.tabContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.tabContainer .block-list-appender {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tabContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: center;
+}
+
+.tabContainer .plus {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-self: center;
+}
+
+.tab-title-text {
+  margin-right: 12px;
+  font-family: 'Roboto Condensed', serif;
+  line-height: 19px;
+  font-size: 16px;
+  color: #747676;
+  padding: 0 5px 14px;
+  text-transform: uppercase;
+}
+
+.tab-title-text.active {
+  font-weight: bold;
+  padding: 0 5px 10px;
+  border-bottom: 4px solid;
+}
+
+.tab-content {
+  display: none;
+  width: 100%;
+  background-color: rgb(247, 247, 247);
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tab-content.active {
+  display: flex;
+}
+
+.contentHolder {
+  background-color: rgb(247, 247, 247);
+  display: flex;
+  justify-content: center;
+}
+
+.imageHolder {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.tabHolder {
+  display: flex;
+}
+
+.tabContainer, .contentContainer {
+  width: 100%;
+  max-width: 1024px;
+  margin: auto;
+}
+
+.tabContainer {
+  flex-wrap: wrap;
+}
+
+@media(max-width: 1024px) {
+  .tabSection {
+	overflow: hidden;
+  }
+
+  .tabContainer {
+	flex-wrap: unset;
+	max-width: 12000px;
+	width: 100%;
+	overflow: auto;
+	justify-content: flex-start;
+	white-space: nowrap;
+  }
+
+  .contentContainer {
+	padding: 0 20px;
+	text-align: center;
+  }
+}

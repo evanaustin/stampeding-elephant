@@ -10,28 +10,29 @@
  * CSS for just Backend enqueued after style.scss
  * which makes it higher in priority.
  */
-.tabs-block .tabs {
+.tab-title-text.active {
+  margin-right: 5px; }
+
+.tabContainer .editIcon {
+  width: 16px;
+  height: 16px;
   display: -ms-flexbox;
   display: flex;
-  -ms-flex-align: center;
-      align-items: center;
-  border-bottom: 1px solid #dadada; }
-  .tabs-block .tabs .tab {
-    display: -ms-flexbox;
-    display: flex;
-    margin-right: 0.5rem;
-    margin-bottom: -1px; }
-    .tabs-block .tabs .tab.active .tab_title {
-      border-bottom-color: #2773cb; }
-    .tabs-block .tabs .tab .tab_title {
-      padding: 7px 20px;
-      color: #2773cb;
-      cursor: pointer;
-      border-bottom: 5px solid transparent; }
-      .tabs-block .tabs .tab .tab_title p {
-        margin: 0; }
+  -ms-flex-align: start;
+      align-items: flex-start;
+  margin-right: 16px; }
 
-.tabs-block .tabs_content .tab_content {
-  display: none; }
-  .tabs-block .tabs_content .tab_content.active {
-    display: block; }
+.editIcon.add {
+  -ms-flex-item-align: center;
+      align-self: center; }
+
+.left {
+  margin-right: 5px; }
+
+.left, .right {
+  width: 15px;
+  height: 15px;
+  margin-bottom: 3px; }
+
+.editorIcon svg {
+  fill: #000000; }

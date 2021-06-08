@@ -9,3 +9,107 @@
  *
  * CSS for both Frontend+Backend.
  */
+.wp-block-cgb-block-tab-layout {
+  margin: 0 auto;
+  width: 100%;
+  padding-top: 40px; }
+
+.tabContainer {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: row;
+      flex-direction: row; }
+
+.tabContainer .block-list-appender {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  -ms-flex-pack: center;
+      justify-content: center; }
+
+.tabContainer {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: row;
+      flex-direction: row;
+  width: 100%;
+  -ms-flex-pack: center;
+      justify-content: center; }
+
+.tabContainer .plus {
+  width: 16px;
+  height: 16px;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-item-align: center;
+      align-self: center; }
+
+.tab-title-text {
+  margin-right: 12px;
+  font-family: 'Roboto Condensed', serif;
+  line-height: 19px;
+  font-size: 16px;
+  color: #747676;
+  padding: 0 5px 14px;
+  text-transform: uppercase; }
+
+.tab-title-text.active {
+  font-weight: bold;
+  padding: 0 5px 10px;
+  border-bottom: 4px solid; }
+
+.tab-content {
+  display: none;
+  width: 100%;
+  background-color: #f7f7f7;
+  -ms-flex-direction: column;
+      flex-direction: column;
+  -ms-flex-pack: center;
+      justify-content: center; }
+
+.tab-content.active {
+  display: -ms-flexbox;
+  display: flex; }
+
+.contentHolder {
+  background-color: #f7f7f7;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: center;
+      justify-content: center; }
+
+.imageHolder {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: start;
+      justify-content: flex-start; }
+
+.tabHolder {
+  display: -ms-flexbox;
+  display: flex; }
+
+.tabContainer, .contentContainer {
+  width: 100%;
+  max-width: 1024px;
+  margin: auto; }
+
+.tabContainer {
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap; }
+
+@media (max-width: 1024px) {
+  .tabSection {
+    overflow: hidden; }
+  .tabContainer {
+    -ms-flex-wrap: unset;
+        flex-wrap: unset;
+    max-width: 12000px;
+    width: 100%;
+    overflow: auto;
+    -ms-flex-pack: start;
+        justify-content: flex-start;
+    white-space: nowrap; }
+  .contentContainer {
+    padding: 0 20px;
+    text-align: center; } }

@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: tabs — CGB Gutenberg Block Plugin
+ * Plugin Name: tabs-block — CGB Gutenberg Block Plugin
  * Plugin URI: https://github.com/ahmadawais/create-guten-block/
- * Description: tabs — is a Gutenberg plugin created via create-guten-block.
+ * Description: tabs-block — is a Gutenberg plugin created via create-guten-block.
  * Author: mrahmadawais, maedahbatool
  * Author URI: https://AhmadAwais.com/
  * Version: 1.0.0
