@@ -19,7 +19,7 @@ const enabledBlocks = [ 'core/column' ];
  *
  * @returns {object} Modified block settings.
  */
-const addBgColorAttribute = (settings, name) => {
+const addBackgroundAttributes = (settings, name) => {
 	// Do nothing if it's another block than our defined ones
 	if (!enabledBlocks.includes(name)) {
 		return settings;
@@ -44,12 +44,12 @@ const addBgColorAttribute = (settings, name) => {
 	return settings;
 };
 
-addFilter('blocks.registerBlockType', 'lu-gutenberg/attribute/bgColor', addBgColorAttribute);
+addFilter('blocks.registerBlockType', 'lu-gutenberg/attribute/backgrounds', addBackgroundAttributes);
 
 /**
  * Create HOC to add background-color option to inspector controls of block
  */
-const withBgColor = createHigherOrderComponent((BlockEdit) => {
+const withBackground = createHigherOrderComponent((BlockEdit) => {
 	return (props) => {
 		// Do nothing if it's another block than our defined ones
 		if (!enabledBlocks.includes(props.name)) {
@@ -70,10 +70,6 @@ const withBgColor = createHigherOrderComponent((BlockEdit) => {
 			});
 		};
 
-		const blockStyle = {
-			backgroundImage: props.attributes.mediaUrl != '' ? 'url("' + props.attributes.mediaUrl + '")' : 'none'
-		};
-
 		const { bgColor, mediaId } = props.attributes;
 
 		// add has-bgColor-x class to block
@@ -82,10 +78,8 @@ const withBgColor = createHigherOrderComponent((BlockEdit) => {
 			props.style = { background: bgColor };
 		}
 
-		// add has-bgColor-x class to block
+		// add has-mediaId-x class to block
 		if (mediaId) {
-			console.log(props.attributes.mediaId);
-			console.log(props.attributes.mediaUrl);
 			props.attributes.className = `has-mediaId-${mediaId}`;
 			props.style = {
 				backgroundImage: props.attributes.mediaUrl != '' ? 'url("' + props.attributes.mediaUrl + '")' : 'none'
@@ -122,7 +116,7 @@ const withBgColor = createHigherOrderComponent((BlockEdit) => {
 						</panelRow>
 					</panelBody>
 
-					<PanelBody title={__('Select block background image', 'awp')} initialOpen={true}>
+					<PanelBody title={__('Select block background image')} initialOpen={true}>
 						<div className="editor-post-featured-image">
 							<MediaUploadCheck>
 								<MediaUpload
@@ -140,7 +134,7 @@ const withBgColor = createHigherOrderComponent((BlockEdit) => {
 											}
 											onClick={open}
 										>
-											{props.attributes.mediaId == 0 && __('Choose an image', 'awp')}
+											{props.attributes.mediaId == 0 && __('Choose an image')}
 											{props.media != undefined && (
 												<ResponsiveWrapper
 													naturalWidth={props.media.media_details.width}
@@ -156,13 +150,13 @@ const withBgColor = createHigherOrderComponent((BlockEdit) => {
 							{props.attributes.mediaId != 0 && (
 								<MediaUploadCheck>
 									<MediaUpload
-										title={__('Replace image', 'awp')}
+										title={__('Replace image')}
 										value={props.attributes.mediaId}
 										onSelect={onSelectMedia}
 										allowedTypes={[ 'image' ]}
 										render={({ open }) => (
 											<Button onClick={open} isDefault isLarge>
-												{__('Replace image', 'awp')}
+												{__('Replace image')}
 											</Button>
 										)}
 									/>
@@ -171,7 +165,7 @@ const withBgColor = createHigherOrderComponent((BlockEdit) => {
 							{props.attributes.mediaId != 0 && (
 								<MediaUploadCheck>
 									<Button onClick={removeMedia} isLink isDestructive>
-										{__('Remove image', 'awp')}
+										{__('Remove image')}
 									</Button>
 								</MediaUploadCheck>
 							)}
@@ -181,17 +175,15 @@ const withBgColor = createHigherOrderComponent((BlockEdit) => {
 			</Fragment>
 		);
 	};
-}, 'withBgColor');
-
-addFilter('editor.BlockEdit', 'lu-gutenberg/with-bg-color', withBgColor);
+}, 'withBackground');
 
 const withAttributes = compose(
 	withSelect((select, props) => {
 		return { media: props.attributes.mediaId ? select('core').getMedia(props.attributes.mediaId) : undefined };
 	})
-)(withBgColor);
+)(withBackground);
 
-// addFilter('editor.BlockEdit', 'lu-gutenberg/with-attributes', withAttributes);
+addFilter('editor.BlockEdit', 'lu-gutenberg/with-background', withBackground);
 
 /**
  * Add background-color style attribute to save element of block.
@@ -202,13 +194,11 @@ const withAttributes = compose(
  *
  * @returns {object} Modified props of save element.
  */
-const addBgColorExtraProps = (saveElementProps, blockType, attributes) => {
+const addBackgroundExtraProps = (saveElementProps, blockType, attributes) => {
 	// Do nothing if it's another block than our defined ones.
 	if (!enabledBlocks.includes(blockType.name)) {
 		return saveElementProps;
 	}
-
-	// console.log(attributes);
 
 	// Use Lodash's assign to gracefully handle if attributes are undefined
 	assign(saveElementProps, {
@@ -221,4 +211,4 @@ const addBgColorExtraProps = (saveElementProps, blockType, attributes) => {
 	return saveElementProps;
 };
 
-addFilter('blocks.getSaveContent.extraProps', 'lu-gutenberg/get-save-content/extra-props', addBgColorExtraProps);
+addFilter('blocks.getSaveContent.extraProps', 'lu-gutenberg/get-save-content/extra-props', addBackgroundExtraProps);
