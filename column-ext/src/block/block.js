@@ -75,14 +75,14 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 		// add has-bgColor-x class to block
 		if (bgColor) {
 			props.attributes.className = `has-bgColor-${bgColor}`;
-			props.style = { background: bgColor };
+			// props.style = { background: bgColor };
 		}
 
 		// add has-mediaId-x class to block
 		if (mediaId) {
 			props.attributes.className = `has-mediaId-${mediaId}`;
 			props.style = {
-				backgroundImage: props.attributes.mediaUrl != '' ? 'url("' + props.attributes.mediaUrl + '")' : 'none'
+				// backgroundImage: props.attributes.mediaUrl != '' ? 'url("' + props.attributes.mediaUrl + '")' : 'none'
 			};
 		}
 
@@ -97,9 +97,7 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 
 		return (
 			<Fragment>
-				<div style={props.style}>
-					<BlockEdit {...props} />
-				</div>
+				<BlockEdit {...props} />
 
 				<InspectorControls>
 					<panelBody initialOpen={false}>
