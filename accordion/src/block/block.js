@@ -1,8 +1,5 @@
 /**
  * BLOCK: accordion
- *
- * Registering a basic block with Gutenberg.
- * Simple block, renders and saves the same content without any interactivity.
  */
 
 //  Import CSS.
@@ -15,7 +12,7 @@ const { RichText, /* AlignmentToolbar, */ BlockControls, InspectorControls, Pane
 const { TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleControl } = wp.components;
 
 /**
- * Register: Accordion Gutenberg Block.
+ * Register: Accordion block
  *
  * Registers a new block provided a unique name and an object defining its
  * behavior. Once registered, the block is made editor as an option to any
