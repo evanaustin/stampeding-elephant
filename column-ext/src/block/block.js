@@ -72,18 +72,25 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 
 		const { bgColor, mediaId } = props.attributes;
 
+		// initialize editBlock styles as flex within row
+		props.style = { flexBasis: 0, flexGrow: 1 };
+
 		// add has-bgColor-x class to block
 		if (bgColor) {
-			props.attributes.className = `has-bgColor-${bgColor}`;
-			// props.style = { background: bgColor };
+			props.attributes.className = `has-bgColor-${bgColor} is-style-background`;
+
+			// add to existing style object
+			props.style = Object.assign(props.style, { backgroundColor: bgColor });
 		}
 
 		// add has-mediaId-x class to block
 		if (mediaId) {
-			props.attributes.className = `has-mediaId-${mediaId}`;
-			props.style = {
-				// backgroundImage: props.attributes.mediaUrl != '' ? 'url("' + props.attributes.mediaUrl + '")' : 'none'
-			};
+			props.attributes.className = `has-mediaId-${mediaId} is-style-backgroundImage`;
+
+			// add to existing style object
+			props.style = Object.assign(props.style, {
+				backgroundImage: props.attributes.mediaUrl != '' ? 'url("' + props.attributes.mediaUrl + '")' : 'none'
+			});
 		}
 
 		const colors = [
@@ -97,7 +104,9 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 
 		return (
 			<Fragment>
-				<BlockEdit {...props} />
+				<div style={props.style}>
+					<BlockEdit {...props} />
+				</div>
 
 				<InspectorControls>
 					<panelBody initialOpen={false}>
