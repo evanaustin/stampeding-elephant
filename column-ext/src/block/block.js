@@ -5,7 +5,7 @@ const { Fragment } = wp.element;
 const { InspectorControls, MediaUpload, MediaUploadCheck } = wp.blockEditor;
 const { PanelBody, SelectControl, ColorPalette, Button, ResponsiveWrapper } = wp.components;
 const { addFilter } = wp.hooks;
-const { withSelect } = wp.data;
+const { select, dispatch, withSelect } = wp.data;
 const { __ } = wp.i18n;
 
 // Enable manipulation of the following blocks
@@ -27,7 +27,15 @@ const addBackgroundAttributes = (settings, name) => {
 
 	// Use Lodash's assign to gracefully handle if attributes are undefined
 	settings.attributes = assign(settings.attributes, {
+		// parentBgColor: {
+		// 	type: 'string',
+		// 	default: null
+		// },
 		bgColor: {
+			type: 'string',
+			default: null
+		},
+		bgImage: {
 			type: 'string',
 			default: null
 		},
@@ -47,6 +55,43 @@ const addBackgroundAttributes = (settings, name) => {
 addFilter('blocks.registerBlockType', 'lu-gutenberg/attribute/backgrounds', addBackgroundAttributes);
 
 /**
+ * Get most immediate parent with a non-transparent background image
+ */
+function getParentBgColor(parentBlocks, index) {
+	const directParent = wp.data.select('core/block-editor').getBlocksByClientId(parentBlocks)[parentBlocks.length - 1];
+
+	if (index > 0 && directParent.attributes.bgColor == 'transparent') {
+		getparentBgColor(parentBlocks, index - 1);
+	} else if (index == 0 && directParent.attributes.bgColor == 'transparent') {
+		return 'transparent';
+	} else {
+		return directParent.attributes.bgColor;
+	}
+}
+
+/**
+ * Given a parent bgColor, return the corresponding class set
+ */
+function getClasses(parentBgColor) {
+	switch (parentBgColor) {
+		case '#FFFFFF': // White
+			return 'bg_white dark_text';
+
+		case '#F5F5F5': // Gray
+			return 'bg_gray dark_text';
+
+		case '#333333': // Dark Gray
+			return 'bg_darkgray light_text';
+
+		case '#E7EFF7': // Blue
+			return 'bg_blue dark_text';
+			
+		case '#161F31': // Dark Blue
+			return 'bg_darkblue light_text';
+	}
+}
+
+/**
  * Create HOC to add background-color option to inspector controls of block
  */
 const withBackground = createHigherOrderComponent((BlockEdit) => {
@@ -55,6 +100,9 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 		if (!enabledBlocks.includes(props.name)) {
 			return <BlockEdit {...props} />;
 		}
+
+		const { attributes, className, clientId } = props;
+		const { parentBgColor, bgColor, mediaId } = attributes;
 
 		const removeMedia = () => {
 			props.setAttributes({
@@ -70,27 +118,60 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 			});
 		};
 
-		const { bgColor, mediaId } = props.attributes;
-
 		// initialize editBlock styles as flex within row
 		props.style = { flexBasis: 0, flexGrow: 1 };
 
-		// add has-bgColor-x class to block
-		if (bgColor) {
-			props.attributes.className = `has-bgColor-${bgColor} is-style-background`;
+		// if (!parentBgColor) {
+		// 	const parentBlocks = wp.data.select('core/block-editor').getBlockParents(props.clientId);
 
-			// add to existing style object
-			props.style = Object.assign(props.style, { backgroundColor: bgColor });
+		// 	if (parentBlocks.length) {
+		// 		props.setAttributes({ parentBgColor: getParentBgColor(parentBlocks, parentBlocks.length - 1) });
+		// 	}
+		// }
+
+		// bgColor hasn't been set yet, but parent does have bgColor
+		// so, we percolate so that this column's children text color will be set up correctly
+		// if (!bgColor && parentBgColor) {
+		// 	props.setAttributes({ bgColor: parentBgColor });
+		// }
+
+		// has background color
+		if (bgColor) {
+			props.setAttributes({ bgColor });
+
+			// percolate children
+			/* const children = select('core/block-editor').getBlocksByClientId(props.clientId)[0].innerBlocks;
+			children.forEach((child) => {
+				dispatch('core/block-editor').updateBlockAttributes(child.clientId, { parentBgColor: bgColor });
+			}); */
+
+			const classes = getClasses(bgColor);
+
+			if (classes) {
+				props.attributes.className = classes;
+				props.style = Object.assign(props.style, { backgroundColor: bgColor });
+
+				props.blockWrapperClasses = `wrapper ${classes}`; // editor only
+				props.blockClasses = classes; // save content
+			}
 		}
 
-		// add has-mediaId-x class to block
+		// has background image
 		if (mediaId) {
-			props.attributes.className = `has-mediaId-${mediaId} is-style-backgroundImage`;
+			let bgImage = props.attributes.mediaUrl != '' ? 'url("' + props.attributes.mediaUrl + '")' : 'none';
+			props.setAttributes({ bgImage });
+
+			// percolate children
+			/* const children = select('core/block-editor').getBlocksByClientId(props.clientId)[0].innerBlocks;
+			children.forEach((child) => {
+				dispatch('core/block-editor').updateBlockAttributes(child.clientId, { parentBgColor: 'image' });
+			}); */
+
+			props.attributes.className = `has_background_image has-bgImage-${bgImage} post-${mediaId}`;
+			props.classes = `has_background_image has-bgImage-${bgImage}`;
 
 			// add to existing style object
-			props.style = Object.assign(props.style, {
-				backgroundImage: props.attributes.mediaUrl != '' ? 'url("' + props.attributes.mediaUrl + '")' : 'none'
-			});
+			props.style = Object.assign(props.style, { backgroundImage: bgImage });
 		}
 
 		const colors = [
@@ -104,7 +185,7 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 
 		return (
 			<Fragment>
-				<div style={props.style}>
+				<div style={props.style} className={props.blockWrapperClasses}>
 					<BlockEdit {...props} />
 				</div>
 
@@ -212,7 +293,8 @@ const addBackgroundExtraProps = (saveElementProps, blockType, attributes) => {
 		style: {
 			background: attributes.bgColor,
 			backgroundImage: attributes.mediaUrl != '' ? 'url("' + attributes.mediaUrl + '")' : 'none'
-		}
+		},
+		class: saveElementProps.blockClasses
 	});
 
 	return saveElementProps;
