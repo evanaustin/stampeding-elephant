@@ -1,0 +1,86 @@
+/**
+ * #.# Editor Styles
+ *
+ * CSS for just Backend enqueued after style.scss
+ * which makes it higher in priority.
+ */
+
+.wp-block-cgb-block-columns-ext  {
+  background: $green;
+  border: 0.2rem solid $black;
+  color: $black;
+  margin: 0 auto;
+  max-width: 740px;
+  padding: 2rem;
+}
+
+.bg_white {
+  background-color: #fff;
+  color: #222;
+}
+
+.bg_gray {
+  background-color: #F5F5F5;
+  color: #222;
+}
+
+.bg_darkgray {
+  background-color: #333;
+  color: #fff;
+}
+
+.bg_blue {
+  background-color: #E7EFF7;
+  color: #000;
+}
+
+.bg_darkblue {
+  background-color: #161f31;
+  color: #fff;
+}
+
+.wrapper {
+  > .wp-block-column {
+    background-color: inherit;
+    color: inherit
+  }
+
+  /* &.bg_white {
+    background-color: #fff;
+    color: #222;
+  }
+
+  &.bg_gray {
+    background-color: #F5F5F5;
+    color: #222;
+  }
+
+  &.bg_darkgray {
+    background-color: #333;
+    color: #fff;
+  }
+
+  &.bg_blue {
+    background-color: #E7EFF7;
+    color: #000;
+  }
+
+  &.bg_darkblue {
+    background-color: #161f31;
+    color: #fff;
+  } */
+}
+
+
+
+// .dark_text {
+//   * {
+//     color: #000000;
+//   }
+// }
+
+// .light_text {
+//   * {
+//     color: #ffffff;
+//   }
+// }
