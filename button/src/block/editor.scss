@@ -5,37 +5,47 @@
  * which makes it higher in priority.
  */
 
-.wp-block-group {
-  .block-editor-block-list__layout {
-    display: flex;
-  }
+// .wp-block-group {
+//   .block-editor-block-list__layout {
+//     display: flex;
+//   }
+// }
+
+.wp-block-lu-block-button-parent {
+	display: block;
+
+	.block-editor-block-list__layout {
+		> .wp-block[data-type="lu/block-button-child"] {
+			display: inline-block;
+		}
+	}
 }
 
-.wp-block-lu-block-button  {
-  .btn {
-    width: 200px;
-    max-width: 100%;
-    text-align: center;
-    min-width: 0;
-    padding: 15px 0;
-    font-size: 14px;
-    font-family: Roboto,sans-serif;
-    border: 0;
+.wp-block-lu-block-button-child {
+	.btn {
+		width: 200px;
+		max-width: 100%;
+		text-align: center;
+		min-width: 0;
+		padding: 15px 0;
+		font-size: 14px;
+		font-family: Roboto, sans-serif;
+		border: 0;
 
-    &.green {
-      background-color: #00AB6C;
-      color: white;
-    }
-    
-    &.blue {
-      background-color: #2773CB;
-      color: white;
-    }
-    
-    &.ghost {
-      background-color: transparent;
-      color: #2773CB;
-      border: 1px solid #dadada;
-    }
-  }
+		&.green {
+			background-color: #00ab6c;
+			color: white;
+		}
+
+		&.blue {
+			background-color: #2773cb;
+			color: white;
+		}
+
+		&.ghost {
+			background-color: transparent;
+			color: #2773cb;
+			border: 1px solid #dadada;
+		}
+	}
 }
