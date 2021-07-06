@@ -2,7 +2,7 @@ import { assign } from 'lodash';
 
 const { compose, createHigherOrderComponent } = wp.compose;
 const { Fragment } = wp.element;
-const { InspectorControls, MediaUpload, MediaUploadCheck } = wp.blockEditor;
+const { InspectorControls, MediaUpload, MediaUploadCheck, InnerBlocks } = wp.blockEditor;
 const { PanelBody, SelectControl, ColorPalette, Button, ResponsiveWrapper } = wp.components;
 const { addFilter } = wp.hooks;
 const { select, dispatch, withSelect } = wp.data;
@@ -25,7 +25,6 @@ const addBackgroundAttributes = (settings, name) => {
 		return settings;
 	}
 
-	// Use Lodash's assign to gracefully handle if attributes are undefined
 	settings.attributes = assign(settings.attributes, {
 		// parentBgColor: {
 		// 	type: 'string',
@@ -46,6 +45,14 @@ const addBackgroundAttributes = (settings, name) => {
 		mediaUrl: {
 			type: 'string',
 			default: ''
+		},
+		// mediaFocalPoint: {
+		// 	type: 'string',
+		// 	default: ''
+		// },
+		media: {
+			type: 'object',
+			default: null
 		}
 	});
 
@@ -85,7 +92,7 @@ function getClasses(parentBgColor) {
 
 		case '#E7EFF7': // Blue
 			return 'bg_blue dark_text';
-			
+
 		case '#161F31': // Dark Blue
 			return 'bg_darkblue light_text';
 	}
@@ -101,6 +108,14 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 			return <BlockEdit {...props} />;
 		}
 
+		// if withBgSelect() found a media file, it will be passed in as a prop here (in our edit function)
+		if (props.media) {
+			// store it in attributes so we can reference it in bgGetSaveElement() (our save function)
+			props.setAttributes({
+				media: props.media
+			});
+		}
+
 		const { attributes, className, clientId } = props;
 		const { parentBgColor, bgColor, mediaId } = attributes;
 
@@ -112,6 +127,7 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 		};
 
 		const onSelectMedia = (media) => {
+
 			props.setAttributes({
 				mediaId: media.id,
 				mediaUrl: media.url
@@ -121,19 +137,19 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 		// initialize editBlock styles as flex within row
 		props.style = { flexBasis: 0, flexGrow: 1 };
 
-		// if (!parentBgColor) {
-		// 	const parentBlocks = wp.data.select('core/block-editor').getBlockParents(props.clientId);
+		/* if (!parentBgColor) {
+			const parentBlocks = wp.data.select('core/block-editor').getBlockParents(props.clientId);
 
-		// 	if (parentBlocks.length) {
-		// 		props.setAttributes({ parentBgColor: getParentBgColor(parentBlocks, parentBlocks.length - 1) });
-		// 	}
-		// }
+			if (parentBlocks.length) {
+				props.setAttributes({ parentBgColor: getParentBgColor(parentBlocks, parentBlocks.length - 1) });
+			}
+		} */
 
 		// bgColor hasn't been set yet, but parent does have bgColor
 		// so, we percolate so that this column's children text color will be set up correctly
-		// if (!bgColor && parentBgColor) {
-		// 	props.setAttributes({ bgColor: parentBgColor });
-		// }
+		/* if (!bgColor && parentBgColor) {
+			props.setAttributes({ bgColor: parentBgColor });
+		} */
 
 		// has background color
 		if (bgColor) {
@@ -265,13 +281,15 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 	};
 }, 'withBackground');
 
-const withAttributes = compose(
-	withSelect((select, props) => {
+const withBgSelect = createHigherOrderComponent(
+	withSelect((select, props, BlockEdit) => {
 		return { media: props.attributes.mediaId ? select('core').getMedia(props.attributes.mediaId) : undefined };
-	})
-)(withBackground);
+	}),
+	'withBgSelect'
+);
 
 addFilter('editor.BlockEdit', 'lu-gutenberg/with-background', withBackground);
+addFilter('editor.BlockEdit', 'lu-gutenberg/with-bg-select', withBgSelect);
 
 /**
  * Add background-color style attribute to save element of block.
@@ -288,11 +306,10 @@ const addBackgroundExtraProps = (saveElementProps, blockType, attributes) => {
 		return saveElementProps;
 	}
 
-	// Use Lodash's assign to gracefully handle if attributes are undefined
 	assign(saveElementProps, {
 		style: {
-			background: attributes.bgColor,
-			backgroundImage: attributes.mediaUrl != '' ? 'url("' + attributes.mediaUrl + '")' : 'none'
+			background: attributes.bgColor
+			// backgroundImage: attributes.mediaUrl != '' ? 'url("' + attributes.mediaUrl + '")' : 'none'
 		},
 		class: saveElementProps.blockClasses
 	});
@@ -301,3 +318,33 @@ const addBackgroundExtraProps = (saveElementProps, blockType, attributes) => {
 };
 
 addFilter('blocks.getSaveContent.extraProps', 'lu-gutenberg/get-save-content/extra-props', addBackgroundExtraProps);
+
+function bgGetSaveElement(element, props, attributes) {
+	// Do nothing if it's another block than our defined ones.
+	if (!enabledBlocks.includes(props.name)) {
+		return element;
+	}
+
+	return (
+		<Fragment>
+			{attributes.media && (
+				<div className="wp-block-column columns has_background has_background_image">
+					<div className="background-image-container">
+						<img
+							src={attributes.media.source_url}
+							className={`background-image wp-post-image wp-image-${attributes.media.id}`}
+							style={{ 'object-position': attributes.media._focal_point }}
+							alt_text={attributes.media.alt_text}
+						/>
+					</div>
+
+					{element}
+				</div>
+			)}
+
+			{!attributes.media && { element }}
+		</Fragment>
+	);
+}
+
+addFilter('blocks.getSaveElement', 'lu-gutenberg/get-save-element', bgGetSaveElement);
