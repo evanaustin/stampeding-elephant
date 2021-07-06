@@ -40,7 +40,7 @@ registerBlockType('lu/block-button-parent', {
 	attributes: {
 		position: {
 			type: 'string',
-			default: 'flex-start'
+			default: ''
 		}
 	},
 
@@ -113,7 +113,7 @@ registerBlockType('lu/block-button-parent', {
      * @returns {Mixed} JSX Frontend HTML.
      */
 	save: (props) => {
-		const { attributes: { position }, className, setAttributes, clientId } = props;
+		const { attributes: { position }, className } = props;
 
 		return (
 			<p className={`${className} ${position}`}>
@@ -153,11 +153,12 @@ registerBlockType('lu/block-button-child', {
 		},
 		href: {
 			type: 'string',
-			default: ''
+		},
+		immutableHref: {
+			type: 'string',
 		},
 		dataHref: {
 			type: 'string',
-			default: ''
 		}
 	},
 
@@ -173,7 +174,7 @@ registerBlockType('lu/block-button-child', {
 	 * @returns {Mixed} JSX Component.
 	 */
 	edit: (props) => {
-		const { attributes: { style, title, href, dataHref }, className, setAttributes } = props;
+		const { attributes: { style, title, href, immutableHref, dataHref }, className, setAttributes } = props;
 
 		const styleOptions = [
 			{
@@ -185,7 +186,7 @@ registerBlockType('lu/block-button-child', {
 				label: 'Green Apply Button',
 				value: 'green applyLink',
 				defaultText: 'Apply Now',
-				href: 'https://apply.liberty.edu/'
+				immutableHref: 'https://apply.liberty.edu/'
 			},
 			{
 				label: 'Generic Blue Button',
@@ -211,6 +212,8 @@ registerBlockType('lu/block-button-child', {
 					<RichText
 						tagName="a"
 						value={title}
+						href={immutableHref || href}
+						data-href={dataHref}
 						onChange={(value) => setAttributes({ title: value })}
 						className={`btn button ${style}`}
 					/>
@@ -228,24 +231,35 @@ registerBlockType('lu/block-button-child', {
 										return o.value == value;
 									})[0];
 
-									setAttributes({ style: value });
-									setAttributes({ title: selected.defaultText });
+									setAttributes({
+										style: value,
+										title: selected.defaultText,
+									});
 
-									if (selected.href) setAttributes({ href: selected.href });
-									if (selected.dataHref) setAttributes({ href: selected.dataHref });
+									if (selected.immutableHref) {
+										// href is not allowed to be edited
+										setAttributes({ immutableHref: selected.immutableHref });
+									} else {
+										// href is allowed to be edited
+										setAttributes({ immutableHref: null });
+									}
+
+									if (selected.dataHref) {
+										setAttributes({ dataHref: selected.dataHref });
+										setAttributes({ href: null });
+									} else {
+										setAttributes({ dataHref: null });
+									}
 								}}
 							/>
 						</panelRow>
 
-						{!href && (
+						{!immutableHref && !dataHref && (
 							<panelRow>
-								<SelectControl
-									label={__('Link')}
+								<TextControl
+									label={__('Anchor link')}
 									value={href}
-									options={[ 'foo' ]}
-									onChange={(value) => {
-										setAttributes({ href: value });
-									}}
+									onChange={(value) => setAttributes({ href: value })}
 								/>
 							</panelRow>
 						)}
@@ -267,13 +281,13 @@ registerBlockType('lu/block-button-child', {
 	 * @returns {Mixed} JSX Frontend HTML.
 	 */
 	save: (props) => {
-		const { attributes: { style, title, href, dataHref } } = props;
+		const { attributes: { style, title, href, immutableHref, dataHref } } = props;
 		return (
 			<RichText.Content
 				tagName="a"
 				className={`btn button ${style}`}
 				value={title}
-				href={href}
+				href={immutableHref || href}
 				data-href={dataHref}
 			/>
 		);
