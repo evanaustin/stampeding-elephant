@@ -11,9 +11,117 @@ import './style.scss';
 
 const { __ } = wp.i18n; // Import __() from wp.i18n
 const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
-const { Button, RichText, AlignmentToolbar, BlockControls, InspectorControls, PanelColorSettings, InnerBlocks } = wp.blockEditor;
+const {
+	Button,
+	RichText,
+	AlignmentToolbar,
+	BlockControls,
+	InspectorControls,
+	PanelColorSettings,
+	InnerBlocks
+} = wp.blockEditor;
 const { TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleControl } = wp.components;
 // const { withState } = wp.compose;
+
+/**
+ * Register: Button Parent block
+ *
+ * @link https://wordpress.org/gutenberg/handbook/block-api/
+ * @param  {string}   name     Block name.
+ * @param  {Object}   settings Block settings.
+ * @return {?WPBlock}          The block, if it has been successfully
+ *                             registered; otherwise `undefined`.
+ */
+registerBlockType('lu/block-button-parent', {
+	title: __('CTA Buttons'),
+	icon: 'menu',
+	category: 'common',
+	keywords: [ __('Accordion'), __('Custom blocks'), __('Gutenberg') ],
+	attributes: {
+		position: {
+			type: 'string',
+			default: 'flex-start'
+		}
+	},
+
+	/**
+     * The edit function describes the structure of your block in the context of the editor.
+     * This represents what the editor will render when the block is used.
+     *
+     * The "edit" property must be a valid function.
+     *
+     * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
+     *
+     * @param {Object} props Props.
+     * @returns {Mixed} JSX Component.
+     */
+	edit: (props) => {
+		const { attributes: { position }, className, setAttributes } = props;
+
+		const ALLOWEDBLOCKS = [ 'lu/block-button-child' ];
+		const BLOCKS_TEMPLATE = [ ALLOWEDBLOCKS ];
+
+		const positionOptions = [
+			{
+				label: 'Left',
+				value: 'has-text-align-left'
+				// value: 'text-justified-left'
+			},
+			{
+				label: 'Center',
+				value: 'has-text-align-center'
+				// value: 'text-justified-center'
+			},
+			{
+				label: 'Right',
+				value: 'has-text-align-right'
+				// value: 'text-justified-right'
+			}
+		];
+
+		return (
+			<fragment>
+				<div className={`${className} ${position}`}>
+					<InnerBlocks template={BLOCKS_TEMPLATE} templateLock={false} allowedBlocks={ALLOWEDBLOCKS} />
+				</div>
+
+				<InspectorControls>
+					<panelBody>
+						<panelRow>
+							<SelectControl
+								label={__('Position')}
+								value={position}
+								options={positionOptions}
+								onChange={(value) => setAttributes({ position: value })}
+							/>
+						</panelRow>
+					</panelBody>
+				</InspectorControls>
+			</fragment>
+		);
+	},
+
+	/**
+     * The save function defines the way in which the different attributes should be combined
+     * into the final markup, which is then serialized by Gutenberg into post_content.
+     *
+     * The "save" property must be specified and must be a valid function.
+     *
+     * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
+     *
+     * @param {Object} props Props.
+     * @returns {Mixed} JSX Frontend HTML.
+     */
+	save: (props) => {
+		const { attributes: { position }, className, setAttributes, clientId } = props;
+
+		return (
+			<p className={`${className} ${position}`}>
+				<InnerBlocks.Content />
+			</p>
+		);
+	}
+});
 
 /**
  * Register: aa Gutenberg Block.
@@ -28,29 +136,29 @@ const { TextControl, PanelBody, PanelRow, RangeControl, SelectControl, ToggleCon
  * @return {?WPBlock}          The block, if it has been successfully
  *                             registered; otherwise `undefined`.
  */
-registerBlockType('lu/block-button', {
-	// Block name. Block names must be string that contains a namespace prefix. Example: my-plugin/my-custom-block.
-	title: __('CTA Button'), // Block title.
-	icon: 'button', // Block icon from Dashicons → https://developer.wordpress.org/resource/dashicons/.
-	category: 'common', // Block category — Group blocks together based on common traits E.g. common, formatting, layout widgets, embed.
-	keywords: [
-		__('Button'),
-		__('Custom blocks'),
-		__('Gutenberg'),
-	],
+registerBlockType('lu/block-button-child', {
+	title: __('CTA Button'),
+	icon: 'button',
+	category: 'common',
+	parent: [ 'lu/block-button-parent' ],
+	keywords: [ __('Button') ],
 	attributes: {
 		style: {
 			type: 'string',
-			default: 'green',
+			default: 'green'
 		},
 		title: {
 			type: 'string',
-			default: 'Learn More',
+			default: 'Learn More'
 		},
 		href: {
 			type: 'string',
-			default: '#',
+			default: ''
 		},
+		dataHref: {
+			type: 'string',
+			default: ''
+		}
 	},
 
 	/**
@@ -65,72 +173,85 @@ registerBlockType('lu/block-button', {
 	 * @returns {Mixed} JSX Component.
 	 */
 	edit: (props) => {
-		const {
-			attributes: { style, title, },
-			className,
-			setState,
-			setAttributes,
-			clientId,
-		} = props;
+		const { attributes: { style, title, href, dataHref }, className, setAttributes } = props;
 
 		const styleOptions = [
 			{
 				label: 'Generic Green Button',
 				value: 'green',
-				defaultText: 'Learn More',
+				defaultText: 'Learn More'
 			},
 			{
 				label: 'Green Apply Button',
 				value: 'green applyLink',
 				defaultText: 'Apply Now',
+				href: 'https://apply.liberty.edu/'
 			},
 			{
 				label: 'Generic Blue Button',
 				value: 'blue',
-				defaultText: 'Learn More',
+				defaultText: 'Learn More'
 			},
 			{
 				label: 'Blue Request Info Button',
 				value: 'blue requestInfo request-info',
-				defaultText: 'Request Information',
+				defaultText: 'Request Info',
+				dataHref: 'https://www.liberty.edu/online/request-information/?program='
 			},
 			{
 				label: 'Clear Ghost Button',
 				value: 'ghost',
-				defaultText: 'Learn More',
-			},
+				defaultText: 'Learn More'
+			}
 		];
 
 		return (
-			<div className={className}>
-				<RichText
-					tagName="a"
-					value={title}
-					onChange={(value) => setAttributes({ title: value })}
-					// placeholder={__('Learn More')}
-					className={"btn button" + " " + style}
-				/>
+			<fragment>
+				<div className={className}>
+					<RichText
+						tagName="a"
+						value={title}
+						onChange={(value) => setAttributes({ title: value })}
+						className={`btn button ${style}`}
+					/>
+				</div>
 
 				<InspectorControls>
-					<panelBody title={__('Button Style Setting')} initialOpen={false}>
+					<panelBody>
 						<panelRow>
 							<SelectControl
-								label={__('Button Style')}
+								label={__('Style')}
 								value={style}
 								options={styleOptions}
 								onChange={(value) => {
-									const selected = Object.values(styleOptions).filter(o => {
+									const selected = Object.values(styleOptions).filter((o) => {
 										return o.value == value;
 									})[0];
 
 									setAttributes({ style: value });
 									setAttributes({ title: selected.defaultText });
+
+									if (selected.href) setAttributes({ href: selected.href });
+									if (selected.dataHref) setAttributes({ href: selected.dataHref });
 								}}
 							/>
 						</panelRow>
+
+						{!href && (
+							<panelRow>
+								<SelectControl
+									label={__('Link')}
+									value={href}
+									options={[ 'foo' ]}
+									onChange={(value) => {
+										setAttributes({ href: value });
+									}}
+								/>
+							</panelRow>
+						)}
 					</panelBody>
 				</InspectorControls>
-			</div>
+			</fragment>
 		);
 	},
 
@@ -146,17 +267,15 @@ registerBlockType('lu/block-button', {
 	 * @returns {Mixed} JSX Frontend HTML.
 	 */
 	save: (props) => {
-		const { attributes, className, } = props;
-		const { style, title, } = attributes;
-
+		const { attributes: { style, title, href, dataHref } } = props;
 		return (
-			<div className={className}>
-				<RichText.Content
-					tagName="a"
-					value={title}
-					className={"btn button" + " " + style}
-				/>
-			</div>
+			<RichText.Content
+				tagName="a"
+				className={`btn button ${style}`}
+				value={title}
+				href={href}
+				data-href={dataHref}
+			/>
 		);
-	},
+	}
 });
