@@ -88,3 +88,14 @@ function paragraph_ext_cgb_block_assets() { // phpcs:ignore
 
 // Hook: Block assets.
 add_action( 'init', 'paragraph_ext_cgb_block_assets' );
+
+// remove ability to select a color
+function disable_gutenberg_color_settings() {
+	add_theme_support('disable-custom-colors');
+	add_theme_support('disable-custom-colors');
+	add_theme_support('editor-color-palette');
+	add_theme_support('editor-gradient-presets', []);
+	add_theme_support('disable-custom-gradients');
+}
+
+add_action( 'after_setup_theme', 'disable_gutenberg_color_settings' );
