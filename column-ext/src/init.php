@@ -88,3 +88,21 @@ function column_block_assets() {
 
 // Hook: Block assets.
 add_action( 'init', 'column_block_assets' );
+
+add_action('rest_api_init', 'add_focal_point');
+
+function add_focal_point() {
+    register_rest_field(
+        'attachment', 
+        '_focal_point', //New Field Name in JSON RESPONSEs
+        array(
+            'get_callback'    => 'get_focal_point', // custom function name 
+            'update_callback' => null,
+            'schema'          => null,
+         )
+    );
+}
+
+function get_focal_point($post){
+    return get_post_meta($post['id'], '_focal_point', true);
+}
