@@ -17,3 +17,27 @@
   margin: 0 auto;
   max-width: 740px;
   padding: 2rem; }
+
+.bg_white {
+  background-color: #fff;
+  color: #222; }
+
+.bg_gray {
+  background-color: #F5F5F5;
+  color: #222; }
+
+.bg_darkgray {
+  background-color: #333;
+  color: #fff; }
+
+.bg_blue {
+  background-color: #E7EFF7;
+  color: #000; }
+
+.bg_darkblue {
+  background-color: #161f31;
+  color: #fff; }
+
+.wrapper > .wp-block-column {
+  background-color: inherit;
+  color: inherit; }
