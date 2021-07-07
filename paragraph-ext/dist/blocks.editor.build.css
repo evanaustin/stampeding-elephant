@@ -17,3 +17,90 @@
   margin: 0 auto;
   max-width: 740px;
   padding: 2rem; }
+
+.bg_white {
+  background-color: #fff;
+  color: #222; }
+
+.bg_gray {
+  background-color: #F5F5F5;
+  color: #222; }
+
+.bg_darkgray {
+  background-color: #333;
+  color: #fff; }
+
+.bg_blue {
+  background-color: #E7EFF7;
+  color: #000; }
+
+.bg_darkblue {
+  background-color: #161f31;
+  color: #fff; }
+
+.wrapper > .wp-block-column {
+  background-color: inherit;
+  color: inherit; }
+
+/* .bg_darkblue *,
+.bg_darkgray *,
+.dark_text .light_text *,
+.has_background_image *,
+.light_text * {
+    color: #fff;
+}
+
+.dark_text *,
+.light_text .dark_text * {
+    color: #222;
+} */
+/* .dark_text {
+  p {
+    color: #000000;
+  }
+}
+
+.light_text {
+  p {
+    color: #ffffff;
+  }
+}
+
+.priority.dark_text {
+  p {
+    color: #000000 !important;
+  }
+}
+
+.priority.light_text {
+  p {
+    color: #ffffff !important;
+  }
+}
+
+.dark_text:not(.priority) {
+  .light_text {
+    p {
+      color: #ffffff !important;
+    }
+  }
+}
+
+.light_text:not(.priority) {
+  .dark_text {
+    p {
+      color: #000000 !important;
+    }
+  }
+} */
+/* .dark_text_important {
+  p {
+    color: #000000 !important;
+  }
+}
+
+.light_text_important {
+  p {
+    color: #ffffff !important;
+  }
+} */

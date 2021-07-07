@@ -8,10 +8,12 @@ import { assign } from 'lodash';
 import './editor.scss';
 import './style.scss';
 
-const { __ } = wp.i18n;
+const { Fragment } = wp.element;
 const { registerBlockType } = wp.blocks;
+const { InspectorControls } = wp.blockEditor;
 const { createHigherOrderComponent } = wp.compose;
 const { addFilter } = wp.hooks;
+const { __ } = wp.i18n;
 
 // Enable manipulation of the following blocks
 const enabledBlocks = [ 'core/paragraph' ];
@@ -30,7 +32,11 @@ function extendParagraphBlock(settings, name) {
 	}
 
 	settings.attributes = assign(settings.attributes, {
-		parentColor: {
+		parentBgColor: {
+			type: 'string',
+			default: null
+		},
+		textColor: {
 			type: 'string',
 			default: null
 		}
@@ -44,6 +50,53 @@ function extendParagraphBlock(settings, name) {
 addFilter('blocks.registerBlockType', 'lu-gutenberg/extend-paragraph-block', extendParagraphBlock);
 
 /**
+ * Get most immediate parent with a non-transparent background image
+ */
+function getParentBgColor(parentBlocks, index) {
+	const directParent = wp.data.select('core/block-editor').getBlocksByClientId(parentBlocks)[parentBlocks.length - 1];
+
+	if (index > 0 && directParent.attributes.bgColor == 'transparent') {
+		getparentBgColor(parentBlocks, index - 1);
+	} else if (index == 0 && directParent.attributes.bgColor == 'transparent') {
+		return 'transparent';
+	} else {
+		return directParent.attributes.bgColor;
+	}
+}
+
+/**
+ * Given a parent bgColor, return the corresponding text color
+ */
+function getTextColor(parentBgColor) {
+	let textColor;
+
+	switch (parentBgColor) {
+		case 'transparent': // None
+			textColor = '#000000';
+			break;
+		case '#FFFFFF': // White
+			textColor = '#000000';
+			break;
+		case '#F5F5F5': // Gray
+			textColor = '#000000';
+			break;
+		case '#333333': // Dark Gray
+			textColor = '#FFFFFF';
+			break;
+		case '#161F31': // Dark Blue
+			textColor = '#FFFFFF';
+			break;
+		case '#F5F5F5': // Blue
+			textColor = '#FFFFFF';
+			break;
+		default:
+			textColor = '#000000';
+	}
+
+	return textColor;
+}
+
+/**
  * Create HOC to add background-color option to inspector controls of block
  */
 const withColor = createHigherOrderComponent((BlockEdit) => {
@@ -54,60 +107,57 @@ const withColor = createHigherOrderComponent((BlockEdit) => {
 		}
 
 		const { attributes, setAttributes, className, clientId } = props;
-		const { parentColor } = attributes;
+		const { parentBgColor } = attributes;
 
-		// get most immediate parent
-		if (!parentColor) {
+		if (!parentBgColor) {
 			const parentBlocks = wp.data.select('core/block-editor').getBlockParents(props.clientId);
-			const parentAttributes = wp.data.select('core/block-editor').getBlocksByClientId(parentBlocks)[
-				parentBlocks.length - 1
-			].attributes;
 
-			props.setAttributes = { parentColor: parentAttributes.bgColor };
-		}
-
-		console.log({ parentColor });
-
-		if (parentColor) {
-			console.log('parent has bgColor', parentColor);
-			let textColor;
-
-			switch (parentColor) {
-				case '#transparent': // None
-					textColor = '#000000';
-					break;
-				case '#FFFFFF': // White
-					textColor = '#000000';
-					break;
-				case '#F5F5F5': // Gray
-					textColor = '#000000';
-					break;
-				case '#333333': // Dark Gray
-					textColor = '#FFFFFF';
-					break;
-				case '#161F31': // Dark Blue
-					textColor = '#FFFFFF';
-					break;
-				case '#F5F5F5': // Blue
-					textColor = '#FFFFFF';
-					break;
-				default:
-					textColor = '#000000';
+			if (parentBlocks.length) {
+				props.setAttributes({ parentBgColor: getParentBgColor(parentBlocks, parentBlocks.length - 1) });
 			}
-
-			props.style = { color: textColor };
 		}
 
-		console.log('props.style', props.style);
+		/* if (!props.attributes.textColor && parentBgColor) {
+			props.setAttributes({ textColor: getTextColor(parentBgColor) });
+		} */
 
-		console.log('props.attributes', props.attributes);
+		// props.style = { color: props.attributes.textColor };
 
 		return (
-			<div className="foo" style={props.style}>
-				<BlockEdit {...props} />
-			</div>
+			<Fragment>
+				<div style={props.style}>
+					<BlockEdit {...props} />
+				</div>
+			</Fragment>
 		);
 	};
 }, 'withColor');
 
 addFilter('editor.BlockEdit', 'lu-gutenberg/with-color', withColor);
+
+/**
+ * Add color style attribute to save element of block.
+ *
+ * @param {object} saveElementProps Props of save element.
+ * @param {Object} blockType Block type information.
+ * @param {Object} attributes Attributes of block.
+ *
+ * @returns {object} Modified props of save element.
+ */
+const addExtraProps = (saveElementProps, blockType, attributes) => {
+	// Do nothing if it's another block than our defined ones.
+	if (!enabledBlocks.includes(blockType.name)) {
+		return saveElementProps;
+	}
+
+	// Use Lodash's assign to gracefully handle if attributes are undefined
+	/* assign(saveElementProps, {
+		style: {
+			color: attributes.textColor
+		}
+	}); */
+
+	return saveElementProps;
+};
+
+addFilter('blocks.getSaveContent.extraProps', 'lu-gutenberg/get-save-content/extra-props', addExtraProps);
