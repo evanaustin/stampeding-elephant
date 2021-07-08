@@ -338,14 +338,7 @@ function bgGetSaveElement(element, props, attributes) {
 				</div>
 			)}
 			
-			{!attributes.media && attributes.bgColor && (
-				<div className={`wp-block-column columns ${attributes.bgColor} has_background`}>
-					<div className="background-image-container"></div>
-					{element}
-				</div>
-			)}
-
-			{!attributes.media && !attributes.bgColor && (
+			{!attributes.media && (
 				element
 			)}
 		</Fragment>
