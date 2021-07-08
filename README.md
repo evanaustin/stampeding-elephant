@@ -10,43 +10,54 @@ To install Node on Mac or Linux, follow the instructions on this link:
 - https://github.com/nvm-sh/nvm
 
 To check if you have Node successfullly installed, run:
+
 `$ node -v` (should read 14.x.x)
 
 To check if you have npm successfullly installed, run:
+
 `$ npm -v`
 
 To check if you have nvm successfullly installed, run:
+
 `$ nvm -v`
 
 If you have nvm installed, run:
+
 `$ nvm ls` (to view which versions of Node you can run)
+
 `$ nvm install 14` (if Node 14 is not yet installed)
+
 `$ nvm use 14` (to switch to using Node 14)
 
 ##### Sass
 This project requires Sass to compile our Sass files as CSS. This can only be done after you first successfully install Node and npm.
 
 To install Sass globally with npm, run:
+
 `$ npm i -g sass`
 
 ##### Yarn (optional)
 Yarn is a package manager, like npm. However, it is much faster than npm. It is not required for you to use Yarn for development, but if you do you must first successfully install Node and npm.
 
 Then, to install Yarn globally with npm, run:
+
 `$ npm i -g yarn`
 
 ## Running the Project
 
 ##### Compile a block
 Each block requires dependencies before you can develop or build them. To do this, `cd` into a given block directory (e.g. mu-plugins/lu-gutenberg-blocks/accordion) and then run:
+
 `$ npm install` or `$ yarn`
 
 ##### Run a block in dev/watch mode
 While developing a block, it is useful to be able to have your package manager 'watching' your Javascript files for changes. Keep in mind, this is a block-by-block process. So make sure that if you're developing a block, you have the following commands running in that given block's directory:
+
 `$ npm start` or `$ yarn start`
 
 ##### Build a block
 While building for production, or even sometimes for development, you will need to build your blocks so that the browser can read the Javascript. Keep in mind, this is a block-by-block process. So make sure that if you're building a block, you run the following commands in that given block's directory:
+
 `$ npm run build` or `$ yarn build`
 
 ##### Create new block
