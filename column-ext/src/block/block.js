@@ -157,7 +157,7 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 				dispatch('core/block-editor').updateBlockAttributes(child.clientId, { parentBgColor: bgColor });
 			}); */
 
-			const classes = getClasses(bgColor);
+			const classes = `columns has_background ${getClasses(bgColor)}`;
 
 			if (classes) {
 				props.attributes.className = classes;
@@ -180,7 +180,8 @@ const withBackground = createHigherOrderComponent((BlockEdit) => {
 			}); */
 
 			props.attributes.className = `has_background_image has-bgImage-${bgImage} post-${mediaId}`;
-			props.classes = `has_background_image has-bgImage-${bgImage}`;
+			props.classes = `columns has_background_image has-bgImage-${bgImage}`;
+			props.blockClasses = `columns has_background has_background_image has-bgImage-${bgImage}`;
 
 			// add to existing style object
 			props.style = Object.assign(props.style, { backgroundImage: bgImage });
