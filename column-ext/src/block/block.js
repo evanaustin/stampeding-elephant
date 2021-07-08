@@ -46,10 +46,6 @@ const addBackgroundAttributes = (settings, name) => {
 			type: 'string',
 			default: ''
 		},
-		// mediaFocalPoint: {
-		// 	type: 'string',
-		// 	default: ''
-		// },
 		media: {
 			type: 'object',
 			default: null
@@ -327,7 +323,7 @@ function bgGetSaveElement(element, props, attributes) {
 
 	return (
 		<Fragment>
-			{attributes.media && (
+			{attributes.media && !attributes.bgColor && (
 				<div className="wp-block-column columns has_background has_background_image">
 					<div className="background-image-container">
 						<img
@@ -341,8 +337,17 @@ function bgGetSaveElement(element, props, attributes) {
 					{element}
 				</div>
 			)}
+			
+			{!attributes.media && attributes.bgColor && (
+				<div className={`wp-block-column columns ${bgColor} has_background`}>
+					<div className="background-image-container"></div>
+					{element}
+				</div>
+			)}
 
-			{!attributes.media && { element }}
+			{!attributes.media && !attributes.bgColor && (
+				element
+			)}
 		</Fragment>
 	);
 }
